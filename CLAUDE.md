@@ -49,6 +49,9 @@
 | `/control-law` | 设计自定义飞行控制律 |
 | `/hil-setup` | 配置硬件在环（HIL）仿真环境 |
 | `/swarm-mission` | 多机协同任务规划（编队/搜索/协同） |
+| `/mixer-actuator` | 配置执行器与混控（电机映射/ESC/PWM/DShot） |
+| `/failsafe-config` | 配置故障保护逻辑（RC丢失/低电量/围栏/RTL） |
+| `/board-bringup` | 新飞控硬件板级支持（引脚/NuttX/驱动/校准） |
 
 ---
 
@@ -92,7 +95,4 @@
 
 ## 路线图（待实现）
 
-- [ ] `mixer-actuator` — 执行器/混控配置
-- [ ] `failsafe-config` — 故障保护配置
-- [ ] `board-bringup` — 新硬件板级支持
-- [ ] `ci-test` — 自动化测试与 CI 配置
+- [ ] `ci-test` — 自动化测试与 CI 配置（GitHub Actions + PX4 单元测试）
