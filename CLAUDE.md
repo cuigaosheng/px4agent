@@ -13,9 +13,17 @@
 | 资源 | 路径 |
 |------|------|
 | PX4 固件源码 | `~/px4agent` |
-| Skills 目录 | `.claude/commands/` |
+| QGroundControl 源码 | `~/qgroundcontrol` |
+| Gazebo Classic 源码 | `~/gazebo-classic` |
+| AirSim 源码 | `~/AirSim` |
 | ROS2 工作空间 | `~/ros2_ws/` |
-| 飞行日志目录 | `build/px4_sitl_default/rootfs/log/` 或 `/fs/microsd/log/` |
+| PlotJuggler 源码 | `~/PlotJuggler` |
+| flight_review 源码 | `~/flight_review` |
+| bagel 源码 | `~/bagel` |
+| Skills 目录 | `.claude/commands/` |
+| 飞行日志目录（SITL） | `~/px4agent/build/px4_sitl_default/rootfs/log/` |
+| 飞行日志目录（真机） | `/fs/microsd/log/` |
+| AirSim 配置 | `~/Documents/AirSim/settings.json` |
 
 ---
 
