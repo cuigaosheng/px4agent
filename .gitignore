@@ -1,6 +1,9 @@
 # Claude Code 本地配置（不共享）
 .claude/settings.local.json
 
+# 会话上下文快照（本地持久化，不入库）
+.claude/context.md
+
 # 会话交接文档（临时文件）
 HANDOFF.md
 
