@@ -25,3 +25,7 @@
 [submodule "ros2"]
 	path = ros2
 	url = https://github.com/ros2/ros2
+
+[submodule "PlotJuggler"]
+	path = PlotJuggler
+	url = https://github.com/facontidavide/PlotJuggler
