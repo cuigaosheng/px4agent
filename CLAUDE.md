@@ -32,9 +32,14 @@
 
 根据本次任务涉及的子模块，取消注释对应行（可多选）：
 
-@.claude/px4-skills.md
-# @.claude/qgc-skills.md
-# @.claude/gazebo-skills.md
+@.claude/px4/CLAUDE.md
+# @.claude/qgc/CLAUDE.md
+# @.claude/gazebo/CLAUDE.md
+# @.claude/ros2/CLAUDE.md
+# @.claude/airsim/CLAUDE.md
+# @.claude/plotjuggler/CLAUDE.md
+# @.claude/flight-review/CLAUDE.md
+# @.claude/bagel/CLAUDE.md
 
 ---
 
