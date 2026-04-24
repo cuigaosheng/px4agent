@@ -4,25 +4,25 @@
 
 | Skill | 用途 |
 |-------|------|
-| `/sim-start` | 启动 PX4 SITL 仿真（Gazebo / AirSim） |
-| `/sensor-driver` | 创建传感器驱动（驱动→uORB→MAVLink→QGC） |
+| `/px4-sim-start` | 启动 PX4 SITL 仿真（Gazebo / AirSim） |
+| `/px4-sensor-driver` | 创建传感器驱动（驱动→uORB→MAVLink→QGC） |
 | `/px4-module` | 创建 PX4 业务模块 |
 | `/px4-workqueue` | 创建 WorkQueue 驱动 |
-| `/mavlink-custom` | 定义自定义 MAVLink 消息 |
-| `/uavcan-custom` | 添加自定义 DroneCAN (UAVCAN v0) 节点 |
+| `/px4-mavlink-custom` | 定义自定义 MAVLink 消息 |
+| `/px4-uavcan-custom` | 添加自定义 DroneCAN (UAVCAN v0) 节点 |
+| `/px4-log-analyze` | 分析 ULog 飞行日志 |
+| `/px4-param-tune` | 飞控参数调优（PID/EKF2/振动滤波） |
+| `/px4-offboard` | 开发 Offboard 外部控制（MAVSDK/ROS2） |
+| `/px4-ros2-bridge` | 配置 ROS2 与 PX4 桥接（uXRCE-DDS） |
+| `/px4-control-law` | 设计自定义飞行控制律 |
+| `/px4-hil-setup` | 配置硬件在环（HIL）仿真环境 |
+| `/px4-swarm-mission` | 多机协同任务规划（编队/搜索/协同） |
+| `/px4-mixer-actuator` | 配置执行器与混控（电机映射/ESC/PWM/DShot） |
+| `/px4-failsafe-config` | 配置故障保护逻辑（RC丢失/低电量/围栏/RTL） |
+| `/px4-board-bringup` | 新飞控硬件板级支持（引脚/NuttX/驱动/校准） |
 | `/review` | 代码安全审查 |
 | `/commit` | 生成规范 git 提交信息 |
 | `/handoff` | 生成会话交接文档（HANDOFF.md） |
-| `/log-analyze` | 分析 ULog 飞行日志 |
-| `/param-tune` | 飞控参数调优（PID/EKF2/振动滤波） |
-| `/offboard` | 开发 Offboard 外部控制（MAVSDK/ROS2） |
-| `/ros2-bridge` | 配置 ROS2 与 PX4 桥接（uXRCE-DDS） |
-| `/control-law` | 设计自定义飞行控制律 |
-| `/hil-setup` | 配置硬件在环（HIL）仿真环境 |
-| `/swarm-mission` | 多机协同任务规划（编队/搜索/协同） |
-| `/mixer-actuator` | 配置执行器与混控（电机映射/ESC/PWM/DShot） |
-| `/failsafe-config` | 配置故障保护逻辑（RC丢失/低电量/围栏/RTL） |
-| `/board-bringup` | 新飞控硬件板级支持（引脚/NuttX/驱动/校准） |
 
 ## PX4 编码规范
 
