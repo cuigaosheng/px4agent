@@ -47,6 +47,8 @@
 | `/offboard` | 开发 Offboard 外部控制（MAVSDK/ROS2） |
 | `/ros2-bridge` | 配置 ROS2 与 PX4 桥接（uXRCE-DDS） |
 | `/control-law` | 设计自定义飞行控制律 |
+| `/hil-setup` | 配置硬件在环（HIL）仿真环境 |
+| `/swarm-mission` | 多机协同任务规划（编队/搜索/协同） |
 
 ---
 
@@ -90,8 +92,7 @@
 
 ## 路线图（待实现）
 
-- [ ] `hil-setup` — 硬件在环（HIL）配置
-- [ ] `swarm-mission` — 多机协同任务规划
 - [ ] `mixer-actuator` — 执行器/混控配置
 - [ ] `failsafe-config` — 故障保护配置
 - [ ] `board-bringup` — 新硬件板级支持
+- [ ] `ci-test` — 自动化测试与 CI 配置
