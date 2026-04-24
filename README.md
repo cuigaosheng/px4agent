@@ -203,9 +203,11 @@ claude
 - [x] 自定义 MAVLink 消息 Skill（mavlink-custom）
 - [x] 自定义 UAVCAN 节点 Skill（uavcan-custom）
 - [x] 代码安全审查 Skill（review）
+- [x] ULog 飞行数据分析 Skill（log-analyze）
+- [x] 飞控参数调优 Skill（param-tune）
+- [x] Offboard 外部控制 Skill（offboard）
+- [x] ROS2 节点与 PX4 桥接 Skill（ros2-bridge）
 - [ ] 飞行控制律设计 Skill（control-law）
-- [ ] ROS2 节点与 PX4 桥接 Skill（ros2-bridge）
-- [ ] ULog 飞行数据分析 Skill（log-analyze）
 - [ ] 硬件在环（HIL）配置 Skill（hil-setup）
 - [ ] 多机协同任务规划 Skill（swarm-mission）
 
