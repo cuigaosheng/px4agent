@@ -204,15 +204,38 @@ px4agent/
 
 ### 1. 克隆仓库
 
+按需选择克隆方式：
+
+**方式一：只克隆需要的子模块（推荐）**
+
+```bash
+git clone https://github.com/<your-org>/px4agent.git
+cd px4agent
+
+# 按需初始化，例如只做 PX4 + QGC + Gazebo 开发
+git submodule update --init PX4-Autopilot
+git submodule update --init qgroundcontrol
+git submodule update --init gazebo-classic
+```
+
+可选子模块一览：
+
+| 子模块 | 适用角色 |
+|--------|---------|
+| `PX4-Autopilot` | PX4 固件工程师 |
+| `qgroundcontrol` | QGC 地面站工程师 |
+| `gazebo-classic` | Gazebo 仿真工程师 |
+| `AirSim` | AirSim 仿真工程师 |
+| `ros2` | ROS2 算法工程师 |
+| `PlotJuggler` | 数据可视化工程师 |
+| `flight_review` | 飞行数据分析工程师 |
+| `bagel` | 数据包录制回放工程师 |
+
+**方式二：克隆全部子模块**
+
 ```bash
 git clone --recurse-submodules https://github.com/<your-org>/px4agent.git
 cd px4agent
-```
-
-如果已克隆但未初始化子模块：
-
-```bash
-git submodule update --init --recursive
 ```
 
 ### 2. 安装 Claude Code
