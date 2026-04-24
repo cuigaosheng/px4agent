@@ -33,31 +33,29 @@
 
 ---
 
-## 关键路径
+## 子模块路径与默认版本
+
+开发者未指定版本时自动采用下表默认版本：
+
+| 子模块 | 路径 | 默认版本 |
+|--------|------|---------|
+| PX4-Autopilot | `PX4-Autopilot/` | v1.15.0 |
+| QGroundControl | `qgroundcontrol/` | v4.4 |
+| Gazebo Classic | `gazebo-classic/` | 11 |
+| ROS2 | `ros2/` | Humble |
+| AirSim | `AirSim/` | — |
+| PlotJuggler | `PlotJuggler/` | — |
+| flight_review | `flight_review/` | — |
+| bagel | `bagel/` | — |
 
 | 资源 | 路径 |
 |------|------|
-| PX4 固件源码 | `PX4-Autopilot/` |
-| QGroundControl 源码 | `qgroundcontrol/` |
-| Gazebo Classic 源码 | `gazebo-classic/` |
-| AirSim 源码 | `AirSim/` |
-| ROS2 工作空间 | `ros2/` |
-| PlotJuggler 源码 | `PlotJuggler/` |
-| flight_review 源码 | `flight_review/` |
-| bagel 源码 | `bagel/` |
 | Skills 目录 | `.claude/commands/` |
 | 飞行日志目录（SITL） | `PX4-Autopilot/build/px4_sitl_default/rootfs/log/` |
 | 飞行日志目录（真机） | `/fs/microsd/log/` |
 | AirSim 配置 | `~/Documents/AirSim/settings.json` |
 
----
-
-## 运行环境
-
-- **平台**：Linux（Ubuntu 22.04）
-- **PX4 版本**：v1.15.0
-- **ROS2 版本**：Humble（LTS）
-- **仿真引擎**：Gazebo Classic（主力）、AirSim（高保真视觉）
+子模块仅作参考文档，不在本项目内编译，代码改动输出到开发者自己的工作目录。
 
 ---
 
@@ -76,22 +74,11 @@
 
 ---
 
-## 子模块默认版本
+## 运行环境
 
-所有 Skill 生成的代码以下列版本为基准，开发者未指定时自动采用：
-
-| 子模块 | 默认版本 |
-|--------|---------|
-| PX4-Autopilot | v1.15.0 |
-| QGroundControl | v4.4 |
-| ROS2 | Humble |
-| Gazebo Classic | 11 |
-
-子模块仅作参考文档，不在本项目内编译，代码改动输出到开发者自己的工作目录。
-
----
-
-## AI 工作流（所有 Skill 强制执行）
+- **平台**：Linux（Ubuntu 22.04）
+- **ROS2 版本**：Humble（LTS）
+- **仿真引擎**：Gazebo Classic（主力）、AirSim（高保真视觉）
 
 每个 Skill 启动时必须按以下顺序执行：
 
