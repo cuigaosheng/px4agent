@@ -24,9 +24,9 @@
 | `/commit` | 生成规范 git 提交信息 |
 | `/handoff` | 生成会话交接文档（HANDOFF.md） |
 
-## PX4 编码规范
+## 内嵌编码规范 (强制执行)
 
-适用于所有涉及 PX4-Autopilot 源码的 Skill，以 PX4 官方贡献指南为准，关键约束如下：
+**所有 `/px4-*` Skills 在执行代码生成步骤时，必须逐条核验以下规范，并在输出代码前向用户汇报核验结果。**
 
 - 禁止动态内存分配（`new` / `delete` / `malloc` / `free`）
 - 禁止独立线程，统一使用 `ScheduledWorkItem` WorkQueue
