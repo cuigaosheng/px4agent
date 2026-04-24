@@ -1,0 +1,27 @@
+[submodule "PX4-Autopilot"]
+	path = PX4-Autopilot
+	url = https://github.com/PX4/PX4-Autopilot
+
+[submodule "qgroundcontrol"]
+	path = qgroundcontrol
+	url = https://github.com/mavlink/qgroundcontrol
+
+[submodule "AirSim"]
+	path = AirSim
+	url = https://github.com/microsoft/AirSim
+
+[submodule "gazebo-classic"]
+	path = gazebo-classic
+	url = https://github.com/gazebosim/gazebo-classic
+
+[submodule "bagel"]
+	path = bagel
+	url = https://github.com/shouhengyi/bagel
+
+[submodule "flight_review"]
+	path = flight_review
+	url = https://github.com/PX4/flight_review
+
+[submodule "ros2"]
+	path = ros2
+	url = https://github.com/ros2/ros2
