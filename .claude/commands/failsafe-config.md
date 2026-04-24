@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 源码：`C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内：`~/droneyee_px4v1.15.0`）
+- PX4 源码：`~/px4agent`
 - Commander 模块：`src/modules/commander/`
 - Failsafe 状态机：`src/modules/commander/Failsafe/`
 - Navigator 模块：`src/modules/navigator/`（RTL/降落逻辑）

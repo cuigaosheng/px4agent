@@ -1,7 +1,7 @@
 在 PX4 项目中创建一个新模块：$ARGUMENTS
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - 模块目录：`src/modules/`
 
 ## 步骤

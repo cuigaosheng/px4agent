@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 源码：`C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内：`~/droneyee_px4v1.15.0`）
+- PX4 源码：`~/px4agent`
 - 多机启动脚本：`Tools/simulation/gazebo-classic/sitl_multiple_run.sh`
 - ROS2 工作空间：`~/ros2_ws/`
 - MAVSDK 文档：https://mavsdk.mavlink.io/
@@ -36,8 +36,8 @@
 ### 2a 启动多机 Gazebo SITL
 
 ```bash
-# WSL 内，PX4 源码目录
-cd ~/droneyee_px4v1.15.0
+# ，PX4 源码目录
+cd ~/px4agent
 
 # 方法一：官方多机启动脚本（推荐）
 # 启动 N 架 iris，自动分配端口
@@ -454,7 +454,7 @@ param set CP_GO_NO_DATA 0    # 无数据时不禁止飞行（SITL）
 
 ```bash
 # 终端 1：启动多机 Gazebo SITL
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 Tools/simulation/gazebo-classic/sitl_multiple_run.sh -n 3 -m iris
 
 # 终端 2：启动多个 uXRCE-DDS Agent（若用 ROS2 方案）

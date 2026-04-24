@@ -12,9 +12,9 @@
 
 | 资源 | 路径 |
 |------|------|
-| PX4 固件源码 | `C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内：`~/droneyee_px4v1.15.0`） |
+| PX4 固件源码 | `~/px4agent` |
 | Skills 目录 | `.claude/commands/` |
-| ROS2 工作空间 | `~/ros2_ws/`（WSL 内） |
+| ROS2 工作空间 | `~/ros2_ws/` |
 | 飞行日志目录 | `build/px4_sitl_default/rootfs/log/` 或 `/fs/microsd/log/` |
 
 ---
@@ -22,7 +22,7 @@
 ## 运行环境
 
 - **平台**：Windows 11 + WSL2（Ubuntu）
-- **PX4 版本**：v1.15.0（自定义分支 `droneyee_px4v1.15.0`）
+- **PX4 版本**：v1.15.0
 - **ROS2 版本**：Humble（LTS）
 - **仿真引擎**：Gazebo Classic（主力）、AirSim（高保真视觉）
 - **所有编译和运行命令必须在 WSL 中执行**
@@ -86,7 +86,7 @@
 
 以下目录为 Git Submodule，仅作为参考文档使用，不在本项目内编译：
 
-- `PX4-Autopilot/` — 上游参考，实际固件在 `droneyee_px4v1.15.0`
+- `PX4-Autopilot/` — 上游参考，实际固件在 `~/px4agent`
 - `qgroundcontrol/` — 地面站参考
 - `AirSim/`, `gazebo-classic/` — 仿真引擎参考
 - `ros2/`, `PlotJuggler/`, `flight_review/`, `bagel/` — 工具参考

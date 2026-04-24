@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 源码：`C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内：`~/droneyee_px4v1.15.0`）
+- PX4 源码：`~/px4agent`
 - HIL 配置文件：`ROMFS/px4fmu_common/init.d/rcS`
 - Gazebo HIL 插件：`Tools/sitl_gazebo/`
 
@@ -31,7 +31,7 @@
 2. **仿真引擎**：Gazebo Classic（推荐，支持最完整）/ jMAVSim（轻量）/ AirSim（高保真视觉）
 3. **机型**：多旋翼 iris / 固定翼 plane / 其他
 4. **连接方式**：USB（推荐，调试方便）/ UART / 网络
-5. **操作系统**：Windows + WSL2 / 纯 Linux
+5. **操作系统**：Linux / 纯 Linux
 6. **目标**：控制律验证 / 参数调优 / 系统集成测试
 
 ---
@@ -43,8 +43,8 @@
 HIL 固件与正常固件相同，通过参数切换：
 
 ```bash
-# 在 WSL 内编译对应板子的固件
-cd ~/droneyee_px4v1.15.0
+# 编译对应板子的固件
+cd ~/px4agent
 
 # 示例：Pixhawk 4
 make px4_fmu-v5_default
@@ -52,7 +52,7 @@ make px4_fmu-v5_default
 # 示例：Pixhawk 6C
 make px4_fmu-v6c_default
 
-# 烧录（飞控通过 USB 连接到 WSL 内）
+# 烧录（飞控通过 USB 连接到 ）
 make px4_fmu-v5_default upload
 ```
 
@@ -74,7 +74,7 @@ SYS_HITL = 1        # 启用 HIL 模式（重启后生效）
 ### 2c 配置串口连接（USB 方式）
 
 ```bash
-# WSL 内查看 USB 设备
+# 查看 USB 设备
 ls /dev/ttyUSB* /dev/ttyACM*
 
 # 常见设备路径
@@ -93,8 +93,8 @@ sudo usermod -a -G dialout $USER
 ### 方案 A：Gazebo + HIL（推荐）
 
 ```bash
-# WSL 内，PX4 源码目录
-cd ~/droneyee_px4v1.15.0
+# ，PX4 源码目录
+cd ~/px4agent
 
 # 启动 Gazebo HIL 仿真（不启动 SITL，只启动仿真环境）
 # Gazebo 会监听 MAVLink 端口，等待真实飞控连接
@@ -118,7 +118,7 @@ python3 Tools/sitl_gazebo/src/gazebo_mavlink_interface.py \
 
 ```bash
 # 启动 jMAVSim，连接真实飞控
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 java -Djava.ext.dirs= -jar Tools/jMAVSim/out/production/jmavsim_run.jar \
   -serial /dev/ttyACM0 -baud 921600
 ```
@@ -238,12 +238,12 @@ listener vehicle_local_position
 | 仿真器显示飞机不动 | 串口波特率不匹配 | 确认两端都是 921600 |
 | QGC 显示传感器红色 | 仿真器未启动或连接断开 | 先启动仿真器再上电飞控 |
 | EKF 不收敛 | 仿真 GPS 信号弱 | 确认 Gazebo GPS 插件正常，或降低 `EKF2_REQ_HDOP` |
-| WSL 内找不到 /dev/ttyACM0 | USB 未挂载到 WSL | `usbipd attach --wsl --busid <id>`（需要 usbipd-win） |
+| 找不到 /dev/ttyACM0 | USB 未挂载到 Linux | `usbipd attach --linux --busid <id>`（需要 usbipd-win） |
 | AirSim HIL 无响应 | COM 端口号错误 | 设备管理器确认 Pixhawk COM 端口 |
 
 ---
 
-## WSL2 USB 挂载（Windows → WSL2）
+## Linux USB 挂载（Windows → Linux）
 
 ```powershell
 # Windows PowerShell（管理员）
@@ -253,13 +253,13 @@ winget install usbipd
 # 列出 USB 设备，找到 Pixhawk
 usbipd list
 
-# 挂载到 WSL2（busid 如 2-1）
+# 挂载到 Linux（busid 如 2-1）
 usbipd bind --busid 2-1
-usbipd attach --wsl --busid 2-1
+usbipd attach --linux --busid 2-1
 ```
 
 ```bash
-# WSL 内确认
+# 确认
 ls /dev/ttyACM*
 ```
 

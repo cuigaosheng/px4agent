@@ -3,8 +3,8 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
-- ROS2 工作空间：`C:/Users/cuiga/px4agent/ros2/`
+- PX4 项目：`~/px4agent`
+- ROS2 工作空间：`~/ros2_ws/`
 - px4_msgs：`~/ros2_ws/src/px4_msgs/`
 - px4_ros_com：`~/ros2_ws/src/px4_ros_com/`
 - uXRCE-DDS 配置：`src/modules/uxrce_dds_client/`
@@ -20,7 +20,7 @@
    - MAVROS（MAVLink 桥接，兼容旧版本）
 3. **需要订阅的 PX4 数据**（如：姿态、位置、传感器）
 4. **需要发布到 PX4 的指令**（如：Offboard setpoint、参数设置）
-5. **运行环境**：WSL2 / 原生 Linux / Docker
+5. **运行环境**：Linux / Docker
 
 ---
 
@@ -184,7 +184,7 @@ auto qos = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort().durability_volatile()
 
 ```bash
 # 终端 1：启动 PX4 SITL
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 make px4_sitl gazebo
 
 # 终端 2：启动 uXRCE-DDS Agent
@@ -214,7 +214,7 @@ ros2 topic hz /fmu/out/vehicle_local_position
 
 ```bash
 # 重新编译
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 make px4_sitl_default
 
 cd ~/ros2_ws
@@ -230,6 +230,6 @@ source install/setup.bash
 |------|------|------|
 | `ros2 topic list` 无 `/fmu` topic | Agent 未连接 | 确认 `uxrce_dds_client` 已启动，Agent 端口匹配 |
 | 数据接收但频率低 | QoS 不匹配 | 订阅者改用 `best_effort()` |
-| WSL2 中 Agent 无法连接 | 网络隔离 | 用 `ip route` 查宿主机 IP，或用 serial 模式 |
+| Linux 中 Agent 无法连接 | 网络隔离 | 用 `ip route` 查宿主机 IP，或用 serial 模式 |
 | px4_msgs 编译报错 | 版本不匹配 | 切换到与 PX4 固件版本对应的 px4_msgs tag |
 | MAVROS 连接超时 | FCU URL 错误 | 检查 UDP 端口，SITL 默认 14540 |

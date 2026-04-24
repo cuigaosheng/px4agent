@@ -3,8 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 源码：`C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内路径：`~/droneyee_px4v1.15.0`）
-- WSL 发行版：Ubuntu 20.04（或系统默认 WSL）
+- PX4 源码：`~/px4agent`
 - Gazebo 子模块：`gazebo-classic/`（px4agent 工作空间内）
 - AirSim 子模块：`AirSim/`（px4agent 工作空间内）
 - QGroundControl 子模块：`qgroundcontrol/`
@@ -22,12 +21,12 @@
 
 ## 第二步：编译 PX4 SITL（首次或代码有改动时）
 
-在 WSL 内执行：
+执行：
 
 ### Gazebo 编译目标
 ```bash
 # 进入 PX4 源码目录
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 
 # 编译 SITL（含 Gazebo 插件），机型可替换为 iris / plane 等
 make px4_sitl_default gazebo
@@ -35,7 +34,7 @@ make px4_sitl_default gazebo
 
 ### AirSim 编译目标（无需 Gazebo 插件）
 ```bash
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 make px4_sitl_default none_iris
 ```
 
@@ -48,8 +47,8 @@ make px4_sitl_default none_iris
 ### 方案 A：Gazebo + PX4 SITL（一键启动）
 
 ```bash
-# 在 WSL 内，PX4 源码根目录执行
-cd ~/droneyee_px4v1.15.0
+# PX4 源码根目录执行
+cd ~/px4agent
 make px4_sitl gazebo          # 默认 iris
 # 或指定机型
 make px4_sitl gazebo_iris
@@ -96,9 +95,9 @@ make px4_sitl gazebo_tailsitter
 - 打开 AirSim 的 Unreal 项目或预编译 `.exe`
 - 等待场景加载完成，出现飞机模型
 
-**步骤 B3：启动 PX4 SITL（WSL 端）**
+**步骤 B3：启动 PX4 SITL（Linux 端）**
 ```bash
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 make px4_sitl none_iris
 ```
 
@@ -112,7 +111,7 @@ PX4 会通过 TCP 4560 自动连接 AirSim。
 
 ### 使用子模块内的 QGC（需编译）
 ```bash
-# WSL 内或 Linux 上
+# 或 Linux 上
 cd ~/px4agent/qgroundcontrol
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -158,7 +157,7 @@ commander takeoff
 
 ```bash
 # 终端 1：实例 0
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 PX4_SIM_MODEL=iris ./build/px4_sitl_default/bin/px4 \
   -s ROMFS/px4fmu_common/init.d-posix/rcS -i 0 -w /tmp/px4_0
 
@@ -179,7 +178,7 @@ Tools/gazebo_sitl_multiple_run.sh -n 2 -m iris
 | Gazebo 打开后飞机掉地 | EKF 未收敛 | 等待约 5 秒让传感器稳定 |
 | `make: gazebo: No such target` | 未安装 Gazebo | `sudo apt install gazebo11 libgazebo11-dev` |
 | AirSim 连接超时 | settings.json 路径错误或防火墙 | 确认文件在 `Documents\AirSim\` 且 TCP 4560 未被占用 |
-| QGC 无法连接 | UDP 14550 防火墙或 WSL 网络 | WSL 内 `ip route` 查看宿主机 IP，在 QGC 中手动添加连接 |
+| QGC 无法连接 | UDP 14550 防火墙或 Linux 网络 |  `ip route` 查看宿主机 IP，在 QGC 中手动添加连接 |
 | PX4 编译报依赖缺失 | 环境未初始化 | `bash ./Tools/setup/ubuntu.sh` 重新安装依赖 |
 | `ROMFS not found` | 工作目录错误 | 在 PX4 源码根目录执行 make，或用 `-w` 指定工作目录 |
 

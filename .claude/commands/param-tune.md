@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - 参数定义：`src/modules/*/module.yaml` 和 `src/modules/*/params.c`
 - 多旋翼姿态控制：`src/modules/mc_att_control/`
 - 多旋翼位置控制：`src/modules/mc_pos_control/`

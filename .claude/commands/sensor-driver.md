@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - 驱动目录：`src/drivers/`
 - uORB 消息：`msg/`
 - MAVLink XML：`src/modules/mavlink/mavlink/message_definitions/v1.0/`

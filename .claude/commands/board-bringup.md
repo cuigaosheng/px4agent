@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 源码：`C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内：`~/droneyee_px4v1.15.0`）
+- PX4 源码：`~/px4agent`
 - Board 目录：`boards/<vendor>/<board>/`
 - NuttX 配置：`boards/<vendor>/<board>/nuttx-config/`
 - 驱动目录：`src/drivers/`
@@ -53,24 +53,24 @@ boards/<vendor>/<board>/
 ### 3a 复制参考板目录
 
 ```bash
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 
 # 以 Pixhawk 4（px4_fmu-v5）为参考板
-# 创建自定义 board：vendor=droneyee, board=v1
-cp -r boards/px4/fmu-v5 boards/droneyee/v1
+# 创建自定义 board：vendor=px4agent, board=v1
+cp -r boards/px4/fmu-v5 boards/px4agent/v1
 
 # 重命名关键文件
-cd boards/droneyee/v1
-mv px4fmu-v5_default.cmake droneyee_v1_default.cmake
+cd boards/px4agent/v1
+mv px4fmu-v5_default.cmake px4agent_v1_default.cmake
 ```
 
 ### 3b 修改 CMakeLists.txt
 
 ```cmake
-# boards/droneyee/v1/CMakeLists.txt
+# boards/px4agent/v1/CMakeLists.txt
 px4_add_board(
     PLATFORM nuttx
-    VENDOR droneyee
+    VENDOR px4agent
     MODEL v1
     LABEL default
     TOOLCHAIN arm-none-eabi
@@ -116,7 +116,7 @@ px4_add_board(
 ## 第四步：修改引脚定义（board_config.h）
 
 ```c
-/* boards/droneyee/v1/board_config.h */
+/* boards/px4agent/v1/board_config.h */
 #pragma once
 
 #include <px4_platform_common/px4_config.h>
@@ -186,9 +186,9 @@ px4_add_board(
 主要关注以下配置项（使用 `make <board> menuconfig` 图形化修改）：
 
 ```bash
-# WSL 内执行
-cd ~/droneyee_px4v1.15.0
-make droneyee_v1_default menuconfig
+# 执行
+cd ~/px4agent
+make px4agent_v1_default menuconfig
 ```
 
 **关键配置项**：
@@ -228,7 +228,7 @@ CONFIG_MMCSD_SPI=y         # SPI 接 SD 卡（或 SDIO）
 ## 第六步：编写启动脚本（Board 默认参数）
 
 ```bash
-# boards/droneyee/v1/init/rc.board_defaults
+# boards/px4agent/v1/init/rc.board_defaults
 #!/bin/sh
 # Board 级默认参数（覆盖 PX4 通用默认值）
 
@@ -254,18 +254,18 @@ param set SYS_AUTOSTART 4001
 ## 第七步：编译与烧录
 
 ```bash
-# WSL 内编译
-cd ~/droneyee_px4v1.15.0
+# 编译
+cd ~/px4agent
 
 # 首次编译（生成所有构建文件）
-make droneyee_v1_default
+make px4agent_v1_default
 
 # 编译并烧录（飞控通过 USB 连接）
-make droneyee_v1_default upload
+make px4agent_v1_default upload
 
 # 烧录 Bootloader（若飞控是全新 MCU，先烧录 Bootloader）
-make droneyee_v1_bootloader
-make droneyee_v1_bootloader upload
+make px4agent_v1_bootloader
+make px4agent_v1_bootloader upload
 ```
 
 ---
@@ -279,7 +279,7 @@ make droneyee_v1_bootloader upload
 
 # 1. 确认固件版本和 Board 信息
 ver all
-# 输出应包含：droneyee_v1，固件版本，编译时间
+# 输出应包含：px4agent_v1，固件版本，编译时间
 
 # 2. 查看所有检测到的传感器
 sensors status

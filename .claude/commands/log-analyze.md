@@ -3,10 +3,10 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - 日志目录：`build/px4_sitl_default/rootfs/log/` 或 SD 卡 `/fs/microsd/log/`
-- flight_review：`C:/Users/cuiga/px4agent/flight_review/`
-- PlotJuggler：`C:/Users/cuiga/px4agent/PlotJuggler/`
+- flight_review：`~/px4agent/flight_review/`
+- PlotJuggler：`~/px4agent/PlotJuggler/`
 
 ---
 
@@ -104,7 +104,7 @@ ulog2csv <log>.ulg -m vehicle_status,failsafe_flags
 
 ```bash
 # 启动 PlotJuggler（需已编译）
-cd C:/Users/cuiga/px4agent/PlotJuggler
+cd ~/px4agent/PlotJuggler
 ./build/PlotJuggler
 
 # 或直接用系统安装版
@@ -124,7 +124,7 @@ plotjuggler
 ## 第五步：flight_review 报告生成
 
 ```bash
-cd C:/Users/cuiga/px4agent/flight_review
+cd ~/px4agent/flight_review
 
 # 安装依赖
 pip install -r requirements.txt

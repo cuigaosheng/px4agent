@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - MAVLink XML 定义：`src/modules/mavlink/mavlink/message_definitions/v1.0/`
 - MAVLink 消息流：`src/modules/mavlink/streams/`
 - MAVLink 接收器：`src/modules/mavlink/mavlink_receiver.cpp`

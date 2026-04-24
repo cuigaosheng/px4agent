@@ -1,7 +1,7 @@
 在 PX4 中创建一个基于 WorkQueue 的驱动或任务：$ARGUMENTS
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - 驱动目录：`src/drivers/`
 - 模块目录：`src/modules/`
 

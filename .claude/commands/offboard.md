@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - Offboard 控制模块：`src/modules/commander/`
 - MAVLink 接收器：`src/modules/mavlink/mavlink_receiver.cpp`
 - uORB topics：`msg/offboard_control_mode.msg`、`msg/trajectory_setpoint.msg`
@@ -189,7 +189,7 @@ for (int i = 0; i < 360; i++) {
 
 ```bash
 # 终端 1：启动 PX4 SITL
-cd ~/droneyee_px4v1.15.0
+cd ~/px4agent
 make px4_sitl gazebo
 
 # 终端 2：编译并运行 Offboard 程序
@@ -243,4 +243,4 @@ telemetry.subscribe_position([&](Telemetry::Position pos) {
 | Offboard 模式切换失败 | 未提前发送 setpoint | 先发送 setpoint 再调用 `offboard.start()` |
 | 自动退出 Offboard | setpoint 发送频率 < 2 Hz | 确保 ≥ 20 Hz 持续发送 |
 | 飞机不响应位置指令 | EKF 未收敛 | 等待 `telemetry.health().is_local_position_ok` |
-| 连接超时 | 端口或防火墙问题 | 检查 UDP 14540，WSL 需配置端口转发 |
+| 连接超时 | 端口或防火墙问题 | 检查 UDP 14540，Linux 需配置端口转发 |

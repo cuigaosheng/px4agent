@@ -3,7 +3,7 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 源码：`C:/Users/cuiga/droneyee_px4v1.15.0`（WSL 内：`~/droneyee_px4v1.15.0`）
+- PX4 源码：`~/px4agent`
 - 控制分配模块：`src/modules/control_allocator/`
 - 执行器输出驱动：`src/drivers/actuators/`
 - 机型配置：`ROMFS/px4fmu_common/init.d/`

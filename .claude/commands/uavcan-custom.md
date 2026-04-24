@@ -3,12 +3,12 @@
 请严格按以下步骤执行，**每步完成后汇报进度并等待用户确认再继续**。
 
 ## 项目路径
-- PX4 项目：`C:/Users/cuiga/droneyee_px4v1.15.0`
+- PX4 项目：`~/px4agent`
 - UAVCAN 驱动：`src/drivers/uavcan/`
 - UAVCAN 主节点：`src/drivers/uavcan/uavcan_main.cpp` / `uavcan_main.hpp`
 - 传感器适配层：`src/drivers/uavcan/sensors/`
 - 执行器适配层：`src/drivers/uavcan/actuators/`
-- DSDL 自定义消息：`src/drivers/uavcan/dsdl/com.droneyee/`（按厂商命名空间）
+- DSDL 自定义消息：`src/drivers/uavcan/dsdl/com.px4agent/`（按厂商命名空间）
 - uORB 消息：`msg/`
 - Libuavcan 头文件：`src/drivers/uavcan/libuavcan/`
 
@@ -32,10 +32,10 @@
 
 ## 第二步：定义 DSDL 消息
 
-1. 在 `src/drivers/uavcan/dsdl/com.droneyee/` 下新建目录结构：
+1. 在 `src/drivers/uavcan/dsdl/com.px4agent/` 下新建目录结构：
    ```
    src/drivers/uavcan/dsdl/
-   └── com.droneyee/
+   └── com.px4agent/
        └── <DataTypeID>.<MessageName>.uavcan
    ```
 2. 按 UAVCAN v0 DSDL 格式编写消息，示例：
@@ -85,7 +85,7 @@
 #pragma once
 
 #include <uavcan/uavcan.hpp>
-#include <com/droneyee/<MessageName>.hpp>   // DSDL 生成头文件
+#include <com/px4agent/<MessageName>.hpp>   // DSDL 生成头文件
 #include <uORB/Publication.hpp>
 #include <uORB/topics/<topic_name>.h>
 #include <drivers/drv_hrt.h>
@@ -102,14 +102,14 @@ public:
     void print_status() const;
 
 private:
-    void cb_<name>(const uavcan::ReceivedDataStructure<com::droneyee::<MessageName>> &msg);
+    void cb_<name>(const uavcan::ReceivedDataStructure<com::px4agent::<MessageName>> &msg);
 
     typedef uavcan::MethodBinder<UavcanCustom<Name>Bridge *,
         void (UavcanCustom<Name>Bridge::*)
-        (const uavcan::ReceivedDataStructure<com::droneyee::<MessageName>> &)>
+        (const uavcan::ReceivedDataStructure<com::px4agent::<MessageName>> &)>
         CallbackBinder;
 
-    uavcan::Subscriber<com::droneyee::<MessageName>, CallbackBinder> _sub;
+    uavcan::Subscriber<com::px4agent::<MessageName>, CallbackBinder> _sub;
     uORB::Publication<<topic_name>_s> _pub{ORB_ID(<topic_name>)};
 };
 ```
@@ -134,7 +134,7 @@ _sensor_bridges.push_back(new UavcanCustom<Name>Bridge(_node));
 #pragma once
 
 #include <uavcan/uavcan.hpp>
-#include <com/droneyee/<MessageName>.hpp>
+#include <com/px4agent/<MessageName>.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/<topic_name>.h>
 
@@ -146,7 +146,7 @@ public:
     void update();   // 由 uavcan_main 周期性调用
 
 private:
-    typedef uavcan::Publisher<com::droneyee::<MessageName>> Publisher;
+    typedef uavcan::Publisher<com::px4agent::<MessageName>> Publisher;
 
     Publisher _pub;
     uORB::Subscription _sub{ORB_ID(<topic_name>)};
