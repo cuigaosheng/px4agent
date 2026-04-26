@@ -218,6 +218,18 @@ Skills 按职责分为四层：
 | simplify | `/simplify` | 审查代码冗余，给出精简建议 |
 | clean-contract | `/clean-contract` | 清除 `.claude/contracts/` 下残留契约文件 |
 
+### Layer 0.5：环境安装技能（新手专用）
+
+| Skill | 触发命令 | 功能 |
+|-------|---------|------|
+| setup-all | `/setup-all` | 一键安装入口，智能检测并按需执行各子 Skill |
+| setup-wsl2 | `/setup-wsl2` | WSL2 + Ubuntu 22.04（Windows 11 专用） |
+| setup-px4 | `/setup-px4` | PX4 工具链 + SITL 编译（WSL/Linux 通用） |
+| setup-gazebo | `/setup-gazebo` | Gazebo Classic 11 + 图形显示验证 |
+| setup-qgc | `/setup-qgc` | QGroundControl + MAVLink 网络配置 |
+| setup-airsim | `/setup-airsim` | AirSim settings.json + TCP 4560 验证 |
+| setup-ros2 | `/setup-ros2` | ROS2 Humble + px4_msgs + uXRCE-DDS Agent |
+
 ---
 
 ## 接口契约机制
@@ -330,6 +342,8 @@ px4agent/
 │   │   └── .gitkeep
 │   └── skills/                    # 全部技能（入库）
 │       ├── [Layer 1] commit/ handoff/ review/ simplify/ clean-contract/
+│       ├── [Layer 0.5] setup-all/ setup-wsl2/ setup-px4/
+│       │              setup-gazebo/ setup-qgc/ setup-airsim/ setup-ros2/
 │       ├── [Layer 2] px4-sensor-driver/ px4-workqueue/ px4-module/
 │       │            px4-mavlink-custom/ px4-uavcan-custom/ px4-control-law/
 │       │            px4-param-tune/ px4-mixer-actuator/ px4-failsafe-config/
@@ -347,6 +361,161 @@ px4agent/
 ├── PlotJuggler/                   # 数据可视化 (submodule)
 ├── flight_review/                 # 飞行日志分析 (submodule)
 └── bagel/                         # 数据包录制回放 (submodule)
+```
+
+---
+
+## 新手安装（全新电脑）
+
+在全新的 Windows 11 或 Ubuntu 22.04 机器上，一条命令完成整套 PX4 开发环境安装：
+
+```
+/setup-all
+```
+
+AI 自动检测当前环境状态，生成安装计划表，确认后按需安装各组件（跳过已有步骤）。
+
+**覆盖组件**：WSL2 + Ubuntu 22.04 → PX4 工具链 → Gazebo Classic 11 → QGroundControl → AirSim → ROS2 Humble
+
+**安装完成后验证**：
+
+```bash
+# SITL + Gazebo
+cd ~/PX4-Autopilot && make px4_sitl gazebo
+
+# SITL + QGC：打开 QGroundControl，观察飞机出现在地图上
+
+# ROS2 话题（已安装 ROS2 时）
+ros2 topic list   # 出现 /px4_0/fmu/out/ 开头的话题
+```
+
+若只需安装某个组件，也可单独触发：
+
+| 命令 | 功能 |
+|------|------|
+| `/setup-wsl2` | 仅安装 WSL2 + Ubuntu 22.04（Windows 11 专用） |
+| `/setup-px4` | 仅安装 PX4 工具链并编译 SITL |
+| `/setup-gazebo` | 仅安装 Gazebo Classic 11 |
+| `/setup-qgc` | 仅安装 QGroundControl 并配置网络 |
+| `/setup-airsim` | 仅配置 AirSim settings.json |
+| `/setup-ros2` | 仅安装 ROS2 Humble + uXRCE-DDS |
+
+### 新手安装完整对话示例
+
+以下是一名从未接触过 PX4 的新手，在全新 Windows 11 电脑上从零开始的真实交互过程：
+
+---
+
+**[新手在 PowerShell 里克隆项目并启动]**
+
+```powershell
+git clone https://github.com/your-org/px4agent.git
+cd px4agent
+claude
+```
+
+---
+
+**Claude 自动询问**
+
+> 检测到 `PROJECT_STATUS.md`，是否读取以了解项目当前状态和待办事项？（推荐）
+
+**新手**：我是新手，我不知道这是什么项目，我只是想学 PX4 开发
+
+**Claude**：这是一个 PX4 无人机 AI 开发平台，你用自然语言告诉我要做什么，我帮你生成代码和配置环境。在用任何功能之前，需要先把开发环境装好。你电脑上现在有没有安装过 WSL2、PX4、Gazebo、QGroundControl？
+
+**新手**：都没有，这是台新电脑
+
+**Claude**：明白，直接一键安装整套环境，运行：`/setup-all`
+
+---
+
+**新手**：`/setup-all`
+
+---
+
+**Claude 询问平台和已有组件**
+
+> 你的电脑操作系统是 Windows 11 还是 Ubuntu 22.04？
+
+**新手**：Windows 11
+
+> 以下组件你已经安装了哪些？没装过的直接说"都没有"：WSL2、PX4、Gazebo、QGC、AirSim、ROS2
+
+**新手**：都没有，这是台新电脑
+
+**Claude 生成安装计划表**
+
+```
+┌──────────────────┬───────────┬──────────────────────────┐
+│ 组件             │ 状态      │ 操作                     │
+├──────────────────┼───────────┼──────────────────────────┤
+│ WSL2 + Ubuntu    │ ❌ 未安装  │ 将执行 /setup-wsl2       │
+│ PX4 工具链+编译  │ ❌ 未安装  │ 将执行 /setup-px4        │
+│ Gazebo Classic   │ ❌ 未安装  │ 将执行 /setup-gazebo     │
+│ QGroundControl   │ ❌ 未安装  │ 将执行 /setup-qgc        │
+│ AirSim 配置      │ ❌ 未配置  │ 将执行 /setup-airsim     │
+│ ROS2 Humble      │ ❌ 未安装  │ 将执行 /setup-ros2       │
+└──────────────────┴───────────┴──────────────────────────┘
+预计总耗时 1～2 小时（主要是 PX4 编译和 ROS2 下载）
+```
+
+是否继续？
+
+**新手**：继续
+
+---
+
+**Claude 逐步引导，新手只需粘贴命令和回报结果：**
+
+> **WSL2**：给出管理员 PowerShell 命令 → 新手重启电脑 → 创建 Ubuntu 用户 → 配置 `.wslconfig` 内存 → 验证通过 ✅
+>
+> **PX4**：安装依赖 → 克隆源码（新手嫌慢，Claude 改用 Gitee 镜像）→ 运行 ubuntu.sh → 编译 SITL（约 20 分钟）→ 输出 `[100%] Linking CXX executable px4` → 验证通过 ✅
+>
+> **Gazebo**：apt 安装 → 配置环境变量 → `gazebo --version` 输出 `11.13.0` → 验证通过 ✅
+>
+> **QGC**：引导下载 Windows 安装包 → 配置 WSL2 Mirrored 网络模式 → 验证通过 ✅
+>
+> **AirSim**：询问是否有 Unreal Engine → 新手说没有 → Claude 建议跳过，初学用 Gazebo 足够 ⏭
+>
+> **ROS2**：添加 apt 源 → 安装 ros-humble-desktop → 编译 px4_msgs → 编译 MicroXRCEAgent → 验证通过 ✅
+
+---
+
+**Claude 运行端到端验证**
+
+```bash
+# Ubuntu 终端：启动 SITL + Gazebo
+cd ~/PX4-Autopilot && make px4_sitl gazebo
+```
+
+**新手**：Gazebo 出来了，有个四旋翼飞机，PX4 显示 Ready for takeoff!
+
+**Claude**：打开 QGroundControl，等几秒，左上角有没有出现飞机图标？
+
+**新手**：有！地图上能看到飞机位置
+
+**Claude**：✅ QGC 连接成功。最后验证 ROS2 话题……`ros2 topic list` 有没有 `/px4_0/fmu/out/` 开头的话题？
+
+**新手**：有，看到很多 /px4_0/fmu/out/vehicle_attitude 之类的
+
+---
+
+**Claude 输出最终状态**
+
+```
+✅ WSL2 + Ubuntu 22.04
+✅ PX4 v1.15.0 工具链 + SITL 编译
+✅ Gazebo Classic 11（SITL 可启动）
+✅ QGroundControl（MAVLink 连通）
+⏭ AirSim（跳过，未安装 UE）
+✅ ROS2 Humble + uXRCE-DDS（话题正常）
+
+下一步可以尝试：
+  /px4-sim-start          ← 学习启动各种仿真场景
+  /px4-param-tune         ← 调整 PID 参数
+  /px4-sensor-driver      ← 添加传感器驱动
+  /px4-e2e-avoidance      ← 完整避障开发链路
 ```
 
 ---

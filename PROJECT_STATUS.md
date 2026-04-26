@@ -1,6 +1,6 @@
 # px4agent 项目状态文档
 
-> 最后更新：2026-04-27（handoff 同步）
+> 最后更新：2026-04-27（安装 Skill 包 + setup-all v1.1.0）
 > 用途：新会话启动时读取此文件，了解架构全貌和当前状态，直接继续工作。
 
 ---
@@ -83,6 +83,18 @@ Layer 0  行为准则 + 领域知识（常驻）
 | handoff | 1.0.0 | 生成会话交接文档 |
 | simplify | 1.0.0 | 代码冗余审查 |
 | clean-contract | 1.0.0 | 清理残留契约文件 |
+
+### Layer 0.5 环境安装技能（新增）
+
+| Skill | 版本 | 说明 |
+|-------|------|------|
+| setup-all | **1.1.0** | 一键安装入口，询问平台+组件状态后编排子 Skill |
+| setup-wsl2 | 1.0.0 | WSL2 + Ubuntu 22.04（Windows 11 专用）|
+| setup-px4 | 1.0.0 | PX4 工具链 + SITL 编译（WSL/Linux 通用）|
+| setup-gazebo | 1.0.0 | Gazebo Classic 11 + WSLg 图形验证 |
+| setup-qgc | 1.0.0 | QGC 安装 + WSL2 NAT 网络配置 |
+| setup-airsim | 1.0.0 | AirSim settings.json + TCP 4560 验证 |
+| setup-ros2 | 1.0.0 | ROS2 Humble + px4_msgs + uXRCE-DDS Agent |
 
 ---
 
@@ -204,6 +216,22 @@ Layer 0  行为准则 + 领域知识（常驻）
 4. 按需触发对应场景 skill，参考第四节的触发命令
 5. 开发完成后：/review → /commit → 确认 contracts/ 已清空
 ```
+
+### 2026-04-27 工作摘要（setup-all 平台询问改造）
+- setup-all v1.0.0 → v1.1.0：删除 `uname -s` 自动检测，改为直接询问用户平台（Windows 11 / Ubuntu）
+- setup-all 第二步同步改为询问用户各组件安装状态，不再执行自动检测命令
+- README 交互示例同步更新，体现"询问平台 → 询问组件 → 生成计划表"流程
+- 原因：自动检测在 Windows PowerShell 环境下不可靠，且安装类操作必须用户知情确认
+
+### 2026-04-27 工作摘要（安装 Skill 包）
+- 新建 7 个环境安装 Skill（Layer 0.5）：setup-all / setup-wsl2 / setup-px4 / setup-gazebo / setup-qgc / setup-airsim / setup-ros2
+- 每个 Skill 均实现：智能检测已有组件 → 跳过已有步骤 → 执行安装 → 验证
+- setup-all 支持 Windows 11 和 Ubuntu 双平台，自动生成安装计划表，顺序编排子 Skill
+- setup-wsl2 含 .wslconfig 内存配置（PX4 编译需要 ≥8GB）
+- setup-qgc 含 WSL2 NAT 网络配置（端口转发方案 + Mirrored 网络模式两种方案）
+- setup-ros2 含 px4_msgs v1.15 版本对应、Micro-XRCE-DDS-Agent 编译安装
+- README 新增"新手安装"章节及组件单独触发命令表
+- PROJECT_STATUS 新增 Layer 0.5 技能清单
 
 ### 2026-04-27 工作摘要（本次会话）
 - 完成 px4agent skill 包从零到可用的全量建设（架构审查 → P0/P1/P2 任务 → SF45 专项修复）
