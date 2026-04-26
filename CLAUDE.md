@@ -50,7 +50,7 @@
 
 | 资源 | 路径 |
 |------|------|
-| Skills 目录 | `.claude/commands/` |
+| Skills 目录 | `.claude/skills/` |
 | 飞行日志目录（SITL） | `PX4-Autopilot/build/px4_sitl_default/rootfs/log/` |
 | 飞行日志目录（真机） | `/fs/microsd/log/` |
 | AirSim 配置 | `~/Documents/AirSim/settings.json` |
@@ -59,18 +59,16 @@
 
 ---
 
-## 角色配置
+## 领域知识（全量加载）
 
-根据本次任务涉及的子模块，取消注释对应行（可多选）：
-
-@.claude/px4/CLAUDE.md
-# @.claude/qgc/CLAUDE.md
-# @.claude/gazebo/CLAUDE.md
-# @.claude/ros2/CLAUDE.md
-# @.claude/airsim/CLAUDE.md
-# @.claude/plotjuggler/CLAUDE.md
-# @.claude/flight-review/CLAUDE.md
-# @.claude/bagel/CLAUDE.md
+@.claude/context/px4.md
+@.claude/context/qgc.md
+@.claude/context/gazebo.md
+@.claude/context/ros2.md
+@.claude/context/airsim.md
+@.claude/context/plotjuggler.md
+@.claude/context/flight-review.md
+@.claude/context/bagel.md
 
 ---
 
@@ -117,5 +115,5 @@
 ## CLAUDE.md 维护指南
 
 - 本文件描述项目的**静态事实**（目录、组件、规范）和 AI 的**通用行为准则**。
-- 具体的**操作流程**（如如何写一个驱动）请参考 `.claude/commands/` 下对应的 Skill 文件。
+- 具体的**操作流程**（如如何写一个驱动）请参考 `.claude/skills/` 下对应的 Skill 文件。
 - 修改本文件时，请注意保持与 README.md 和 Skill 文件的描述一致。

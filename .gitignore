@@ -4,6 +4,9 @@
 # 会话上下文快照（本地持久化，不入库）
 .claude/context.md
 
+# 接口契约文件（运行时生成，不入库，.gitkeep 除外）
+.claude/contracts/*.contract.md
+
 # 会话交接文档（临时文件）
 HANDOFF.md
 

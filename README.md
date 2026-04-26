@@ -10,7 +10,7 @@
 
 **px4agent** 的目标是打破这一壁垒。
 
-本项目将 PX4 完整生态集成为统一工作空间，并在其上构建一套 **AI 开发代理层**（Claude Code Skills）。开发者只需用自然语言描述需求，AI 即可完成从需求分析、代码生成、规范审查到验证的全链路工作，将无人系统的迭代速度提升一个量级。
+本项目将 PX4 完整生态集成为统一工作空间，并在其上构建一套 **AI 开发代理层**（Claude Code Skills）。开发者只需用自然语言描述需求，AI 即可完成从需求分析、代码生成、规范审查到验证的全链路工作。
 
 ---
 
@@ -21,143 +21,214 @@
 ```
 
 - **人机协作**：AI 负责重复性的工程实现，工程师专注系统设计与决策
-- **规范内嵌**：PX4 编码规范、安全约束、架构模式直接编码进每个 AI Skill，而不是靠人记
+- **规范内嵌**：PX4 编码规范、安全约束、架构模式直接编码进每个 Skill
 - **端到端闭环**：从驱动、通信协议到地面站 UI、数据分析，整条链路在同一平台内完成
+- **接口契约**：跨组件开发时自动生成接口契约文件，保证 uORB / MAVLink / 仿真器参数全链路一致
 
 ---
 
-## 生态组件
+## 典型使用场景
 
-本项目通过 Git Submodule 集成了 PX4 完整技术栈：
+### 场景一：毫米波雷达避障全链路开发
 
-| 组件 | 仓库 | 职责 |
-|------|------|------|
-| **PX4-Autopilot** | PX4/PX4-Autopilot | 飞控固件核心，驱动 / 模块 / uORB / MAVLink |
-| **QGroundControl** | mavlink/qgroundcontrol | 地面控制站，任务规划、参数调试、实时监控 |
-| **AirSim** | microsoft/AirSim | 高保真物理 + 视觉仿真，支持多旋翼 / 固定翼 |
-| **Gazebo Classic** | gazebosim/gazebo-classic | PX4 官方 SITL 仿真引擎 |
-| **ROS2** | ros2/ros2 | 机器人操作系统，算法研发与系统集成 |
-| **PlotJuggler** | facontidavide/PlotJuggler | 高性能时序数据可视化，实时调试利器 |
-| **flight_review** | PX4/flight_review | 飞行日志（ULog）在线分析平台 |
-| **bagel** | shouhengyi/bagel | 无人系统数据包录制与回放工具 |
+开发者只需一条命令，AI 自动完成感知→仿真→算法→安全→验证的全链路开发：
+
+```
+/px4-e2e-avoidance 毫米波雷达 DroneCAN，4米，20Hz，AirSim，ROS2方案
+```
+
+AI 执行步骤：
+
+| 步骤 | 内容 | 涉及 Skill |
+|------|------|-----------|
+| Step 0 | 生成接口契约，锁定 uORB topic / MAVLink ID / 仿真器 / 算法方案 | — |
+| Step 1 | DroneCAN 雷达驱动开发，发布 `distance_sensor` uORB | `/px4-uavcan-custom` |
+| Step 2 | AirSim Distance 传感器仿真配置（settings.json） | `/airsim-sensor` |
+| Step 3 | ROS2 避障节点，订阅 `distance_sensor`，发布 `trajectory_setpoint` | `/px4-ros2-bridge` + `/px4-offboard` |
+| Step 4 | QGC 障碍物距离曲线显示 | `/qgc-display` |
+| Step 5 | 故障保护：传感器超时→悬停，CP 触发 3s→RTL | `/px4-failsafe-config` |
+| Step 6 | HIL 闭环验证 + 飞行日志复盘 | `/px4-hil-setup` + `/px4-log-analyze` |
+
+契约机制保证所有组件使用相同的接口参数，无需人工对齐。
 
 ---
 
-## AI 开发技能（Skills）
+### 场景二：CUAV RFID 模块驱动开发
 
-Skills 是本项目的核心能力层。每个 Skill 是一个结构化的 AI 提示程序，内嵌了对应领域的 PX4 规范、文件路径、代码模板和验证流程。
-
-在 Claude Code 中输入 `/<skill-name> <你的需求>` 即可启动对话式开发流程。
-
-### 可用 Skills 一览
-
-#### 仿真环境
-
-- **`/sim-start`** — 启动 PX4 SITL 仿真环境
-  编译固件 → 启动 Gazebo 或 AirSim → 连接 QGroundControl → 验证仿真链路，支持多机仿真配置
-
-#### 固件开发
-
-- **`/sensor-driver <传感器名称>`** — 全流程创建 PX4 传感器驱动
-  驱动代码 → uORB 消息 → MAVLink 流 → QGC 显示 → SITL 验证
-
-- **`/px4-module <模块名称>`** — 在 PX4 中创建新业务模块
-  WorkQueue 框架、参数定义、uORB 订阅/发布，含单元测试
-
-- **`/px4-workqueue <驱动名称>`** — 创建基于 `ScheduledWorkItem` 的高性能驱动
-  内置完整的禁止项检查清单（禁阻塞、禁浮点、禁动态内存）
-
-#### 通信协议
-
-- **`/mavlink-custom <消息名称>`** — 定义自定义 MAVLink 消息
-  XML 定义 → PX4 流实现 → QGC 解析 → 端到端验证
-
-- **`/uavcan-custom <节点功能>`** — 添加自定义 DroneCAN (UAVCAN v0) 节点
-  DSDL 定义 → 适配层（传感器订阅/执行器发布）→ uORB 集成
-
-#### 工程质量
-
-- **`/review`** — 对当前修改进行安全审查
-  内存安全、空指针、状态机完整性、通信数据校验、PX4 规范合规性
-
-- **`/commit`** — 生成规范的 git 提交信息
-  自动分析改动内容，按约定式提交格式生成描述
-
-- **`/handoff`** — 生成会话交接文档
-  记录任务状态、关键决策、待处理问题和下步行动，保存为 `HANDOFF.md`
-
-#### 飞行数据与调参
-
-- **`/log-analyze <日志路径>`** — 分析 PX4 ULog 飞行日志
-  提取姿态跟踪误差、振动频谱、EKF 健康、电源状态、故障时间线，生成 HTML 报告
-
-- **`/param-tune <描述>`** — 飞控参数调优
-  多旋翼/固定翼/VTOL 的 PID、位置控制、EKF2、振动滤波全套调参流程，含 Ziegler-Nichols 方法
-
-#### 外部控制与系统集成
-
-- **`/offboard <需求描述>`** — 开发 Offboard 外部控制
-  MAVSDK/ROS2/MAVLink 接口，支持位置/速度/姿态/角速率控制，含超时保护和安全机制
-
-- **`/ros2-bridge <需求描述>`** — 配置 ROS2 与 PX4 桥接
-  uXRCE-DDS（推荐）或 MAVROS 方案，含工作空间配置、话题映射、QoS 设置
-
-#### 控制律设计
-
-- **`/control-law <需求描述>`** — 设计和实现自定义飞行控制律
-  支持姿态/位置/自适应/MPC 控制律，提供标准 PID 和 MPC 参考实现，含 SITL 验证指标
-
-#### 系统集成与验证
-
-- **`/hil-setup <需求描述>`** — 配置硬件在环（HIL）仿真环境
-  真实飞控硬件 + 虚拟传感器/执行器，支持 Gazebo / jMAVSim / AirSim，含 WSL2 USB 挂载配置
-
-- **`/swarm-mission <需求描述>`** — 多机协同任务规划
-  MAVSDK 多实例或 ROS2 多命名空间方案，含编队队形定义、领航-跟随、区域覆盖搜索、碰撞规避
-
-#### 硬件工程
-
-- **`/mixer-actuator <需求描述>`** — 配置执行器与混控
-  电机映射、PWM/DShot 协议配置、ESC 校准、控制分配矩阵、自定义机型混控
-
-- **`/failsafe-config <需求描述>`** — 配置故障保护逻辑
-  RC 丢失、数据链丢失、低电量三级保护、地理围栏、RTL 参数、解锁前检查，含场景模板
-
-- **`/board-bringup <需求描述>`** — 新飞控硬件板级支持
-  Board 目录结构、引脚定义、NuttX 配置、驱动使能、编译烧录、首次上电验证清单
-
-### Skill 工作模式
-
-每个 Skill 采用**分步确认**工作模式：
+RFID 模块通过 DroneCAN 接入，需要完整的驱动→MAVLink→QGC 显示链路：
 
 ```
-Step 1: AI 分析现有代码库，搜索参考实现
-   ↓ (汇报结果，等待确认)
-Step 2: AI 生成代码框架
-   ↓ (展示代码，等待确认)
-Step 3: AI 集成进构建系统
-   ↓ (展示改动，等待确认)
-...
-最终: AI 给出验证命令，确认端到端正常
+/px4-e2e-sensor CUAV_RFID DroneCAN
 ```
 
-这种模式确保 AI 不会越权修改代码，每一步改动都经过工程师审核。
+AI 执行步骤：
+
+| 步骤 | 内容 | 涉及 Skill |
+|------|------|-----------|
+| Step 0 | 生成接口契约，锁定 DSDL / uORB / MAVLink / QGC 字段，仿真器写入"无" | — |
+| Step 1 | DroneCAN 驱动：DSDL 定义 → 解析适配 → 发布 `rfid_report` uORB | `/px4-uavcan-custom` |
+| Step 2 | 仿真层：**自动跳过**（无硬件仿真需求） | — |
+| Step 3 | MAVLink 流：定义 `RFID_REPORT` 消息，配置推送频率 | `/px4-mavlink-custom` |
+| Step 4 | QGC 显示：tag_id / signal_strength / timestamp 实时曲线 | `/qgc-display` |
+
+与毫米波雷达共用同一个场景 Skill，通过参数区分处理分支，无需新建场景。
+
+---
+
+### 场景三：外场抖动诊断 + PID 自动调参
+
+飞行人员发现飞机抖动，怀疑积分饱和，一条命令完成诊断到建议：
+
+```
+/px4-diagnose ~/logs/flight_2026-04-26.ulg
+```
+
+AI 执行流程：
+
+```
+1. pyulog 自动提取 rate_ctrl_status / actuator_controls（全自动）
+   → 发现 roll_integ 在第 46.5~49.2s 异常累积，actuator 输出饱和
+
+2. ⏸ 暂停：请用 bagel 做 3D 回放，确认抖动时间段和轴
+
+3. ⏸ 暂停：请打开 flight_review HTML 报告，描述跟踪曲线偏差
+
+4. AI 综合以上输入，输出结构化诊断：
+   根本原因：MC_ROLLRATE_I 过大导致积分饱和振荡
+
+5. 自动给出参数修改建议表：
+   MC_ROLLRATE_I  0.15 → 0.08  降低 I 项，减少积分饱和风险
+   MC_ROLLRATE_D  0.003 → 0.004 适当增加 D 项，抑制残余振荡
+```
+
+> 与分别触发 `/px4-log-analyze` → `/handoff` → `/px4-param-tune` 三步相比，`/px4-diagnose` 将诊断结论的传递自动化，只在需要人工读图时暂停。
+
+---
+
+## Skill 分层架构
+
+Skills 按职责分为四层：
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Layer 3：场景技能层（4 个，固定不新增）              │
+│  /px4-e2e-sensor  /px4-e2e-avoidance                │
+│  /px4-e2e-control  /px4-e2e-swarm                   │
+├─────────────────────────────────────────────────────┤
+│  Layer 2：组件技能层（25 个）                        │
+│  PX4固件(12) + 仿真集成(7) + 地面站(1) + 运维(1)   │
+├─────────────────────────────────────────────────────┤
+│  Layer 1：基础设施技能层（5 个）                     │
+│  /commit  /review  /handoff  /simplify              │
+│  /clean-contract                                    │
+├─────────────────────────────────────────────────────┤
+│  Layer 0：行为准则与领域知识层（常驻加载）            │
+│  CLAUDE.md + .claude/context/*.md                   │
+└─────────────────────────────────────────────────────┘
+```
+
+### Layer 3：场景技能（跨组件编排）
+
+场景数量永久固定为 4 个，新需求通过参数区分，不新增场景。
+
+| Skill | 触发命令 | 覆盖链路 |
+|-------|---------|---------|
+| px4-e2e-sensor | `/px4-e2e-sensor <传感器> <总线>` | 驱动 → MAVLink → 仿真 → QGC 显示 |
+| px4-e2e-avoidance | `/px4-e2e-avoidance <传感器> <算法>` | 感知 → 仿真 → 算法 → 安全 → 验证 |
+| px4-e2e-control | `/px4-e2e-control <控制律类型>` | 控制律 → 仿真 → ROS2 接口 → 调参 |
+| px4-e2e-swarm | `/px4-e2e-swarm <机型> <任务>` | 多实例仿真 → 协同任务 → 通信 → 安全 |
+
+### Layer 2：组件技能
+
+#### PX4 固件组
+
+| Skill | 触发命令 | 功能 |
+|-------|---------|------|
+| px4-sensor-driver | `/px4-sensor-driver` | 传感器驱动（I2C/SPI/UART → uORB → MAVLink → QGC） |
+| px4-workqueue | `/px4-workqueue` | ScheduledWorkItem 完整驱动框架 |
+| px4-module | `/px4-module` | PX4 业务模块（WorkQueue + uORB + 参数） |
+| px4-mavlink-custom | `/px4-mavlink-custom` | 自定义 MAVLink 消息定义与流实现 |
+| px4-uavcan-custom | `/px4-uavcan-custom` | 自定义 DroneCAN (UAVCAN v0) 节点 |
+| px4-control-law | `/px4-control-law` | 自定义飞行控制律（PID/MPC/自适应） |
+| px4-param-tune | `/px4-param-tune` | PID / EKF2 / 振动滤波参数调优 |
+| px4-mixer-actuator | `/px4-mixer-actuator` | 电机映射 / PWM / DShot 配置 |
+| px4-failsafe-config | `/px4-failsafe-config` | 故障保护逻辑（RC 丢失/低电量/围栏/RTL） |
+| px4-board-bringup | `/px4-board-bringup` | 新飞控硬件板级支持 |
+| px4-log-analyze | `/px4-log-analyze` | ULog 飞行日志分析 |
+| px4-diagnose | `/px4-diagnose` | 日志自动诊断 + PID 调参建议（pyulog 全自动，GUI 工具人工介入）|
+
+#### 仿真与集成组
+
+| Skill | 触发命令 | 功能 |
+|-------|---------|------|
+| px4-sim-start | `/px4-sim-start` | SITL + Gazebo / AirSim 仿真启动 |
+| px4-hil-setup | `/px4-hil-setup` | 硬件在环（HIL）通用配置 |
+| px4-offboard | `/px4-offboard` | MAVSDK / ROS2 外部控制接口 |
+| px4-ros2-bridge | `/px4-ros2-bridge` | uXRCE-DDS 桥接配置 |
+| px4-swarm-mission | `/px4-swarm-mission` | 多机协同任务规划 |
+| airsim-sensor | `/airsim-sensor` | AirSim 自定义传感器仿真（settings.json） |
+| gazebo-sensor | `/gazebo-sensor` | Gazebo 传感器插件开发 + SDF 配置 |
+
+#### 地面站组
+
+| Skill | 触发命令 | 功能 |
+|-------|---------|------|
+| qgc-display | `/qgc-display` | QGC 自定义 MAVLink 数据图表显示 |
+
+### Layer 1：基础设施技能
+
+| Skill | 触发命令 | 功能 |
+|-------|---------|------|
+| review | `/review` | 安全审查：内存 / 空指针 / PX4 规范合规 |
+| commit | `/commit` | 生成约定式 git 提交信息 |
+| handoff | `/handoff` | 生成会话交接文档 HANDOFF.md |
+| simplify | `/simplify` | 审查代码冗余，给出精简建议 |
+| clean-contract | `/clean-contract` | 清除 `.claude/contracts/` 下残留契约文件 |
+
+---
+
+## 接口契约机制
+
+Layer 3 场景 Skill 在 Step 0 自动生成接口契约文件（`.claude/contracts/<task>.contract.md`），锁定所有跨组件接口参数：
+
+```
+uORB topic    MAVLink 消息 ID    数据单位    采样率    仿真器    算法方案
+```
+
+后续各组件 Skill 读取契约参数，跳过重复询问，保证链路参数全程一致。
+
+契约文件生命周期：任务启动时创建 → 全部步骤完成后自动删除。会话中断可恢复，手动清理用 `/clean-contract`。
 
 ---
 
 ## 内嵌编码规范
 
-所有 Skills 共同遵守以下 PX4 硬性约束，AI 会自动检查并拒绝生成违规代码：
+所有 Skills 共同遵守以下 PX4 硬性约束：
 
 - **禁止动态内存分配**（`new` / `delete` / `malloc` / `free`）
 - **禁止独立线程**，统一使用 `ScheduledWorkItem` WorkQueue
-- **禁止在驱动层使用浮点运算**，用定点数或整型
+- **禁止驱动层浮点运算**，用定点数或整型
 - **禁止阻塞调用**（`sleep` / `usleep` / mutex lock），用 `ScheduleDelayed()`
 - **禁止 `printf`**，用 `PX4_DEBUG` / `PX4_INFO` / `PX4_WARN` / `PX4_ERR`
 - **禁止裸调 `param_get()`**，用 `DEFINE_PARAMETERS` + `ModuleParams`
 - **时间戳统一用 `hrt_absolute_time()`**，禁止系统时钟
 - **只用 UAVCAN v0 (DroneCAN)**，禁止 Cyphal v1
-- **通信数据先范围校验再写 uORB**，防止外部非法值注入
+- **通信数据先范围校验再写 uORB**，防止非法值注入
+
+---
+
+## 生态组件
+
+| 组件 | 路径 | 职责 |
+|------|------|------|
+| PX4-Autopilot | `PX4-Autopilot/` | 飞控固件核心 |
+| QGroundControl | `qgroundcontrol/` | 地面控制站 |
+| AirSim | `AirSim/` | 高保真物理 + 视觉仿真 |
+| Gazebo Classic | `gazebo-classic/` | PX4 官方 SITL 仿真引擎 |
+| ROS2 | `ros2/` | 机器人操作系统 |
+| PlotJuggler | `PlotJuggler/` | 高性能时序数据可视化 |
+| flight_review | `flight_review/` | 飞行日志在线分析平台 |
+| bagel | `bagel/` | 数据包录制与回放工具 |
 
 ---
 
@@ -165,37 +236,38 @@ Step 3: AI 集成进构建系统
 
 ```
 px4agent/
+├── CLAUDE.md                      # Layer 0 行为准则（全量加载 context/）
 ├── .claude/
-│   └── commands/          # AI Skills 定义文件（14 个）
-│       ├── sim-start.md        # 仿真环境启动
-│       ├── sensor-driver.md    # 传感器驱动开发
-│       ├── px4-module.md       # PX4 模块开发
-│       ├── px4-workqueue.md    # WorkQueue 驱动
-│       ├── mavlink-custom.md   # 自定义 MAVLink 消息
-│       ├── uavcan-custom.md    # 自定义 DroneCAN 节点
-│       ├── review.md           # 代码安全审查
-│       ├── commit.md           # 规范提交
-│       ├── handoff.md          # 会话交接文档
-│       ├── log-analyze.md      # ULog 飞行日志分析
-│       ├── param-tune.md       # 飞控参数调优
-│       ├── offboard.md         # Offboard 外部控制
-│       ├── ros2-bridge.md      # ROS2 与 PX4 桥接
-│       ├── control-law.md      # 自定义飞行控制律
-│       ├── hil-setup.md        # 硬件在环（HIL）配置
-│       ├── swarm-mission.md    # 多机协同任务规划
-│       ├── mixer-actuator.md   # 执行器与混控配置
-│       ├── failsafe-config.md  # 故障保护逻辑配置
-│       └── board-bringup.md    # 新飞控硬件板级支持
-├── CLAUDE.md              # 项目级 AI 上下文（Claude Code 配置）
-├── PX4-Autopilot/         # 飞控固件 (submodule)
-├── qgroundcontrol/        # 地面控制站 (submodule)
-├── AirSim/                # 高保真仿真 (submodule)
-├── gazebo-classic/        # SITL 仿真引擎 (submodule)
-├── ros2/                  # 机器人操作系统 (submodule)
-├── PlotJuggler/           # 数据可视化 (submodule)
-├── flight_review/         # 飞行日志分析 (submodule)
-├── bagel/                 # 数据包录制回放 (submodule)
-└── README.md
+│   ├── context/                   # Layer 0 领域知识（全量加载）
+│   │   ├── px4.md
+│   │   ├── qgc.md
+│   │   ├── gazebo.md
+│   │   ├── ros2.md
+│   │   ├── airsim.md
+│   │   ├── plotjuggler.md
+│   │   ├── flight-review.md
+│   │   └── bagel.md
+│   ├── contracts/                 # 接口契约（运行时生成，不入库）
+│   │   └── .gitkeep
+│   └── skills/                    # 全部技能（入库）
+│       ├── [Layer 1] commit/ handoff/ review/ simplify/ clean-contract/
+│       ├── [Layer 2] px4-sensor-driver/ px4-workqueue/ px4-module/
+│       │            px4-mavlink-custom/ px4-uavcan-custom/ px4-control-law/
+│       │            px4-param-tune/ px4-mixer-actuator/ px4-failsafe-config/
+│       │            px4-board-bringup/ px4-log-analyze/ px4-diagnose/
+│       │            px4-sim-start/ px4-hil-setup/ px4-offboard/
+│       │            px4-ros2-bridge/ px4-swarm-mission/
+│       │            airsim-sensor/ gazebo-sensor/ qgc-display/
+│       └── [Layer 3] px4-e2e-sensor/ px4-e2e-avoidance/
+│                     px4-e2e-control/ px4-e2e-swarm/
+├── PX4-Autopilot/                 # 飞控固件 (submodule)
+├── qgroundcontrol/                # 地面控制站 (submodule)
+├── AirSim/                        # 高保真仿真 (submodule)
+├── gazebo-classic/                # SITL 仿真引擎 (submodule)
+├── ros2/                          # 机器人操作系统 (submodule)
+├── PlotJuggler/                   # 数据可视化 (submodule)
+├── flight_review/                 # 飞行日志分析 (submodule)
+└── bagel/                         # 数据包录制回放 (submodule)
 ```
 
 ---
@@ -204,38 +276,13 @@ px4agent/
 
 ### 1. 克隆仓库
 
-按需选择克隆方式：
-
-**方式一：只克隆需要的子模块（推荐）**
-
 ```bash
 git clone https://github.com/<your-org>/px4agent.git
 cd px4agent
 
-# 按需初始化，例如只做 PX4 + QGC + Gazebo 开发
+# 按需初始化子模块，例如只做 PX4 + Gazebo 开发
 git submodule update --init PX4-Autopilot
-git submodule update --init qgroundcontrol
 git submodule update --init gazebo-classic
-```
-
-可选子模块一览：
-
-| 子模块 | 适用角色 |
-|--------|---------|
-| `PX4-Autopilot` | PX4 固件工程师 |
-| `qgroundcontrol` | QGC 地面站工程师 |
-| `gazebo-classic` | Gazebo 仿真工程师 |
-| `AirSim` | AirSim 仿真工程师 |
-| `ros2` | ROS2 算法工程师 |
-| `PlotJuggler` | 数据可视化工程师 |
-| `flight_review` | 飞行数据分析工程师 |
-| `bagel` | 数据包录制回放工程师 |
-
-**方式二：克隆全部子模块**
-
-```bash
-git clone --recurse-submodules https://github.com/<your-org>/px4agent.git
-cd px4agent
 ```
 
 ### 2. 安装 Claude Code
@@ -246,61 +293,35 @@ npm install -g @anthropic/claude-code
 
 ### 3. 启动 AI 开发代理
 
-在项目根目录启动 Claude Code：
-
 ```bash
+cd px4agent
 claude
 ```
-
-### 4. 使用 Skill 开始开发
-
-示例：为 I2C 温度传感器添加 PX4 驱动
-
-```
-/sensor-driver MY_TEMP，I2C 接口，输出温度（0.01°C 精度），采样率 10 Hz
-```
-
-示例：添加自定义 DroneCAN 消息
-
-```
-/uavcan-custom 电池扩展信息节点，发布单体电压数组（16节）和温度
-```
-
----
-
-## 开发路线图
-
-- [x] 仿真环境启动 Skill（sim-start）—— Gazebo & AirSim
-- [x] 传感器驱动 Skill（sensor-driver）
-- [x] 模块开发 Skill（px4-module）
-- [x] WorkQueue 驱动 Skill（px4-workqueue）
-- [x] 自定义 MAVLink 消息 Skill（mavlink-custom）
-- [x] 自定义 UAVCAN 节点 Skill（uavcan-custom）
-- [x] 代码安全审查 Skill（review）
-- [x] ULog 飞行数据分析 Skill（log-analyze）
-- [x] 飞控参数调优 Skill（param-tune）
-- [x] Offboard 外部控制 Skill（offboard）
-- [x] ROS2 节点与 PX4 桥接 Skill（ros2-bridge）
-- [x] 飞行控制律设计 Skill（control-law）
-- [x] 硬件在环（HIL）配置 Skill（hil-setup）
-- [x] 多机协同任务规划 Skill（swarm-mission）
-- [x] 执行器与混控配置 Skill（mixer-actuator）
-- [x] 故障保护逻辑配置 Skill（failsafe-config）
-- [x] 新飞控硬件板级支持 Skill（board-bringup）
 
 ---
 
 ## 参与贡献
 
-欢迎提交新的 Skill 或改进现有 Skill。Skill 文件位于 `.claude/commands/`，使用 Markdown 编写，无需编译。
+Skill 文件位于 `.claude/skills/<skill-name>/SKILL.md`，使用 Markdown 编写，无需编译。
 
-贡献一个新 Skill 的步骤：
+**贡献新 Skill 的步骤：**
 
-1. 在 `.claude/commands/` 下新建 `<skill-name>.md`
-2. 第一行格式：`<功能简述>：$ARGUMENTS`
-3. 按领域规范编写分步骤执行流程
-4. 在本 README 的 Skills 表格中注册
-5. 提交 PR，附上使用示例
+1. 确认目标层级（Layer 1 基础设施 / Layer 2 单组件 / Layer 3 跨组件场景）
+2. 在 `.claude/skills/<skill-name>/` 下创建 `SKILL.md`
+3. 头部格式：
+   ```yaml
+   ---
+   name: <skill-name>
+   version: "1.0.0"
+   description: <一句话描述>
+   disable-model-invocation: false
+   allowed-tools: [Bash, Read, Write, Edit, Glob, Grep]
+   ---
+   ```
+4. Layer 2 Skill：开头加"契约检查"步骤（若契约存在则读取参数，跳过重复询问）
+5. Layer 3 Skill：每个步骤明确写 `读取 .claude/skills/<layer2>/SKILL.md，按该文件指令执行`，自身不生成任何业务代码
+6. 在本 README 的对应 Skill 表格中注册
+7. 提交 PR，附上使用示例
 
 ---
 
