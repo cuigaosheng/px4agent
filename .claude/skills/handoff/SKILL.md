@@ -1,15 +1,15 @@
 ---
 name: handoff
-version: "1.0.0"
-description: 在当前工作目录生成会话交接文档 HANDOFF.md。
+version: "1.1.0"
+description: 生成会话交接文档 HANDOFF.md，并同步更新 PROJECT_STATUS.md。
 disable-model-invocation: true
-allowed-tools: [Bash, Read, Write, Glob]
+allowed-tools: [Bash, Read, Write, Edit, Glob]
 ---
-在当前工作目录生成会话交接文档 HANDOFF.md。
+在当前工作目录生成会话交接文档，并同步更新持久化项目状态。
 
-请分析当前会话的工作内容，生成结构化的交接文档，包含以下内容：
+## 第一步：生成 HANDOFF.md
 
-## 文档结构
+分析当前会话的工作内容，生成结构化的交接文档并保存到 `HANDOFF.md`（已加入 .gitignore，仅本地有效）：
 
 ```
 # 会话交接文档
@@ -38,4 +38,24 @@ allowed-tools: [Bash, Read, Write, Glob]
 - 编译/测试/运行命令
 ```
 
-生成后保存到当前工作目录的 `HANDOFF.md`（此文件已加入 .gitignore）。
+---
+
+## 第二步：同步更新 PROJECT_STATUS.md
+
+读取根目录 `PROJECT_STATUS.md`，追加本次会话的工作内容（**禁止覆盖已有内容**）：
+
+1. 将文件顶部 `> 最后更新：` 的日期改为当前日期
+2. 在**第二节（Skill清单）**中更新有版本变动的 skill 版本号
+3. 在**第三节（本次会话完成的工作）**末尾追加本次工作摘要，格式：
+
+```markdown
+### <当前日期> 工作摘要
+- <改动1>
+- <改动2>
+- ...
+```
+
+4. 在**第六节（已知待处理项）**中更新或新增待处理项
+5. 在**第九节（git提交记录）**顶部插入最新提交（如果本次有 commit）
+
+更新完成后，提示用户：`PROJECT_STATUS.md 已同步，新会话可直接读取继续工作。`
