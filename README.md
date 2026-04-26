@@ -29,27 +29,60 @@
 
 ## 典型使用场景
 
-### 场景一：毫米波雷达避障全链路开发
+### 场景一：避障全链路开发（毫米波雷达 vs SF45 360° 激光雷达）
 
-开发者只需一条命令，AI 自动完成感知→仿真→算法→安全→验证的全链路开发：
+**两种传感器共用同一个 `/px4-e2e-avoidance` 场景 Skill，通过参数区分处理路径。**
+
+#### 1a. 毫米波雷达避障（单点测距，ROS2 算法）
 
 ```
-/px4-e2e-avoidance 毫米波雷达 DroneCAN，4米，20Hz，AirSim，ROS2方案
+/px4-e2e-avoidance 毫米波雷达 DroneCAN 单点测距 AirSim ROS2方案
 ```
 
-AI 执行步骤：
+| 关键契约参数 | 值 |
+|------------|-----|
+| sensor_type | 单点测距 |
+| uORB topic | `distance_sensor` |
+| algorithm_type | ros2 |
+| 仿真器 | AirSim |
 
 | 步骤 | 内容 | 涉及 Skill |
 |------|------|-----------|
-| Step 0 | 生成接口契约，锁定 uORB topic / MAVLink ID / 仿真器 / 算法方案 | — |
-| Step 1 | DroneCAN 雷达驱动开发，发布 `distance_sensor` uORB | `/px4-uavcan-custom` |
-| Step 2 | AirSim Distance 传感器仿真配置（settings.json） | `/airsim-sensor` |
-| Step 3 | ROS2 避障节点，订阅 `distance_sensor`，发布 `trajectory_setpoint` | `/px4-ros2-bridge` + `/px4-offboard` |
-| Step 4 | QGC 障碍物距离曲线显示 | `/qgc-display` |
-| Step 5 | 故障保护：传感器超时→悬停，CP 触发 3s→RTL | `/px4-failsafe-config` |
-| Step 6 | HIL 闭环验证 + 飞行日志复盘 | `/px4-hil-setup` + `/px4-log-analyze` |
+| Step 0 | 生成契约，锁定 sensor_type=单点 / sim=airsim / algorithm=ros2 | — |
+| Step 1 | DroneCAN 驱动，发布 `distance_sensor` | `/px4-uavcan-custom` |
+| Step 2 | AirSim Distance 传感器仿真（settings.json） | `/airsim-sensor` |
+| Step 3 | ROS2 节点订阅 `distance_sensor`，发布 `trajectory_setpoint` | `/px4-ros2-bridge` + `/px4-offboard` |
+| Step 4 | QGC 距离曲线显示 | `/qgc-display` |
+| Step 5 | 故障保护配置 | `/px4-failsafe-config` |
+| Step 6 | HIL 验证 + 日志复盘 | `/px4-hil-setup` + `/px4-log-analyze` |
 
-契约机制保证所有组件使用相同的接口参数，无需人工对齐。
+#### 1b. SF45 360° 激光雷达避障（全向扫描，PX4 内置 CP 模块 + 避障后 Hold）
+
+```
+/px4-e2e-avoidance SF45 UART 360°扫描 Gazebo internal
+```
+
+| 关键契约参数 | 值 | 说明 |
+|------------|-----|------|
+| sensor_type | 360° 扫描 | SF45 只发布 `obstacle_distance`，不发布 `distance_sensor` |
+| uORB topic | `obstacle_distance` | 72 元素数组，5°/格，覆盖全向 |
+| algorithm_type | internal（强制） | 360° 传感器不支持 ros2/mavsdk 路径 |
+| 仿真器 | Gazebo |  |
+
+| 步骤 | 内容 | 涉及 Skill |
+|------|------|-----------|
+| Step 0 | 生成契约，锁定 sensor_type=360° / sim=gazebo / algorithm=internal | — |
+| Step 1 | **驱动核实**（SF45 驱动已存在）：规范检查 + 数据格式验证 + 编译确认 | `/px4-sensor-driver`（核实流程） |
+| Step 2 | Gazebo gpu_ray 360° 插件配置（72 样本，-180°~+180°，OBSTACLE_DISTANCE 注入） | `/gazebo-sensor` |
+| Step 3 | CP 模块参数配置（CP_DIST / CP_DELAY / CP_GO_NO_DATA）+ **避障后 Hold 状态机**开发 | `/px4-module` + `/px4-param-tune` |
+| Step 4 | QGC 全向障碍物显示 | `/qgc-display` |
+| Step 5 | 故障保护配置 | `/px4-failsafe-config` |
+| Step 6 | HIL 验证（靠近障碍物减速→停止→障碍消除后切 HOLD）+ 日志复盘 | `/px4-hil-setup` + `/px4-log-analyze` |
+
+> **两个场景的核心区别**：
+> - 毫米波（单点）→ `distance_sensor` → 支持 internal / ros2 / mavsdk 三种算法
+> - SF45（360°）→ `obstacle_distance` → **只能用 internal**（CP 模块直接读 72 格数据）
+> - SF45 驱动已在项目中存在，Step 1 走"核实"而非"新建"
 
 ---
 
