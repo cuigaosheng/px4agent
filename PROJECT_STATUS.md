@@ -1,6 +1,6 @@
 # px4agent 项目状态文档
 
-> 最后更新：2026-04-27（安装 Skill 包 + setup-all v1.1.0）
+> 最后更新：2026-05-01（新增 9 个代码生成器 + 时间戳同步 Skill）
 > 用途：新会话启动时读取此文件，了解架构全貌和当前状态，直接继续工作。
 
 ---
@@ -43,6 +43,15 @@ Layer 0  行为准则 + 领域知识（常驻）
 | Skill | 版本 | 说明 |
 |-------|------|------|
 | px4-sensor-driver | **1.1.0** | 驱动已存在→核实流程；不存在→新建流程 |
+| px4-magnetometer | **1.0.0** | 磁力计驱动 + 校准 + Yaw 漂移诊断修复 |
+| px4-barometer | **1.0.0** | 气压计驱动 + 校准 + 高度估计偏差诊断修复 |
+| px4-imu-gen | **1.0.0** | IMU 代码生成器（9 款芯片库，一键生成驱动） |
+| px4-mag-gen | **1.0.0** | 磁力计代码生成器（8 款芯片库，一键生成驱动） |
+| px4-rangefinder-gen | **1.0.0** | 测距仪代码生成器（8 款芯片库，一键生成驱动） |
+| px4-gnss-gen | **1.0.0** | GNSS 代码生成器（10 款芯片库，支持 RTK，一键生成驱动） |
+| px4-mmwave-radar-gen | **1.0.0** | 毫米波雷达代码生成器（12 款芯片库，支持多总线，一键生成驱动） |
+| px4-sensor-codegen | **1.0.0** | 通用传感器代码生成器（支持自定义传感器类型） |
+| px4-timestamp-sync | **1.0.0** | 精准时间戳处理与同步（多传感器对齐、精度验证、校准） |
 | px4-workqueue | 1.0.0 | ScheduledWorkItem 完整驱动框架 |
 | px4-module | 1.0.0 | PX4 业务模块（WorkQueue+uORB+参数）|
 | px4-mavlink-custom | 1.0.0 | 自定义 MAVLink 消息 |
@@ -232,6 +241,77 @@ Layer 0  行为准则 + 领域知识（常驻）
 - setup-ros2 含 px4_msgs v1.15 版本对应、Micro-XRCE-DDS-Agent 编译安装
 - README 新增"新手安装"章节及组件单独触发命令表
 - PROJECT_STATUS 新增 Layer 0.5 技能清单
+
+### 2026-05-01 工作摘要（新增毫米波雷达驱动代码生成器）
+- 新建 `px4-mmwave-radar-gen` v1.0.0（Layer 2 代码生成器）
+  - 内置 12 款毫米波雷达芯片库（TI IWR1443/1642/1843、AWR1443/1642/1843、Bosch ARS430/441/MRR4、Delphi ESR、Continental ARS/MRR）
+  - 支持 CAN/Ethernet/UART/SPI 多总线
+  - 支持目标检测、点云数据、避障、自适应巡航、碰撞预警等功能
+  - 一键生成：驱动头文件 + 实现文件 + uORB 消息 + MAVLink 流 + CMakeLists.txt + Kconfig + 单元测试
+  - 包含 7 个详细使用示例（IWR1843、ARS441、AWR1843、MRR4、ARS、自定义、参数库扩充）
+  - 参数库可扩充（JSON 格式）
+
+### 2026-05-01 工作摘要（新增 GNSS 接收机驱动代码生成器）
+- 新建 `px4-gnss-gen` v1.0.0（Layer 2 代码生成器）
+  - 内置 10 款 GNSS 芯片库（u-blox NEO-M8N/M9N/ZED-F9P/F9R、Septentrio mosaic-X5、Novatel PwrPak7、Emlid Reach M+、Swift Duro、Garmin GNSS 18x、SiRF Atlas）
+  - 支持 UART/I2C/SPI/Ethernet/CAN 多总线
+  - 支持 RTK 高精度定位（ZED-F9P、mosaic-X5 等）
+  - 支持多频 GNSS（GPS/GLONASS/Galileo/BeiDou）
+  - 一键生成：驱动头文件 + 实现文件 + uORB 消息 + MAVLink 流 + CMakeLists.txt + Kconfig + 单元测试
+  - 包含 6 个详细使用示例（NEO-M8N、ZED-F9P、mosaic-X5、Reach M+、Garmin、自定义）
+  - 参数库可扩充（JSON 格式）
+
+### 2026-05-01 工作摘要（新增 4 个参数化代码生成器 Skills）
+- 新建 `px4-imu-gen` v1.0.0（Layer 2 代码生成器）
+  - 内置 9 款 IMU 芯片库（MPU6050/6000/9250、ICM20689/42688、BMI088/160、LSM6DSL/DSO）
+  - 支持 I2C/SPI 总线自动配置
+  - 一键生成：驱动头文件 + 实现文件 + uORB 消息 + MAVLink 流 + CMakeLists.txt + Kconfig + 单元测试
+  - 参数库可扩充（JSON 格式）
+
+- 新建 `px4-mag-gen` v1.0.0（Layer 2 代码生成器）
+  - 内置 8 款磁力计芯片库（HMC5883L、IST8310、QMC5883L、LIS3MDL、BMM150、AK8963/09916、RM3100）
+  - 支持 I2C/SPI 总线自动配置
+  - 一键生成完整驱动代码框架
+  - 参数库可扩充
+
+- 新建 `px4-rangefinder-gen` v1.0.0（Layer 2 代码生成器）
+  - 内置 8 款测距仪芯片库（VL53L0X/L1X、SF45、TF-Luna/Mini、HC-SR04、MB1242、PX4FLOW）
+  - 支持 I2C/SPI/UART/GPIO/Analog 多总线
+  - 支持单点和 360° 扫描类型
+  - 一键生成完整驱动代码框架
+  - 参数库可扩充
+
+- 新建 `px4-sensor-codegen` v1.0.0（Layer 2 通用代码生成器）
+  - 支持 9 种标准传感器类型（IMU、磁力计、气压计、测距仪、光流、空速计、GPS、360° 测距、自定义）
+  - 用户可定义自定义传感器类型和数据字段
+  - 自动生成完整驱动框架（驱动 + uORB + MAVLink + 单元测试）
+  - 参数库可扩充
+
+### 2026-05-01 工作摘要（新增磁力计 + 气压计专用 Skills）
+- 新建 `px4-magnetometer` v1.0.0（Layer 2 组件技能）
+  - 磁力计驱动完整模板（I2C/SPI，ScheduledWorkItem 模式）
+  - 校准参数配置（CAL_MAG0_* 参数定义）
+  - Yaw 漂移诊断与修复方案（EKF2 融合权重调整、软铁补偿）
+  - SITL 验证命令和实机验证流程
+  - 单元测试框架（Google Test）
+  - 编码规范核验清单
+
+- 新建 `px4-barometer` v1.0.0（Layer 2 组件技能）
+  - 气压计驱动完整模板（I2C/SPI，ScheduledWorkItem 模式）
+  - 校准参数配置（SENS_BARO_* 参数定义）
+  - 高度估计异常诊断与修复方案（EKF2 融合权重调整）
+  - SITL 验证命令和实机验证流程
+  - 单元测试框架（Google Test）
+  - 编码规范核验清单
+
+### 2026-05-01 工作摘要（新增磁力计专用 Skill）
+- 新建 `px4-magnetometer` v1.0.0（Layer 2 组件技能）
+- 包含磁力计驱动完整模板（I2C/SPI，ScheduledWorkItem 模式）
+- 集成校准参数配置（CAL_MAG0_* 参数定义）
+- 包含 Yaw 漂移诊断与修复方案（EKF2 融合权重调整、软铁补偿）
+- 提供 SITL 验证命令和实机验证流程
+- 包含单元测试框架（Google Test）
+- 编码规范核验清单（禁止浮点、禁止动态内存、WorkQueue 模式等）
 
 ### 2026-04-27 工作摘要（本次会话）
 - 完成 px4agent skill 包从零到可用的全量建设（架构审查 → P0/P1/P2 任务 → SF45 专项修复）
