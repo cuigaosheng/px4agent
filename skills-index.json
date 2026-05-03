@@ -1,0 +1,271 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-03",
+  "totalSkills": 48,
+  "layers": {
+    "layer3": {
+      "name": "场景技能",
+      "count": 4,
+      "description": "端到端场景编排，涵盖 PX4 开发的完整工作流",
+      "skills": [
+        {
+          "id": "px4-e2e-sensor",
+          "name": "传感器端到端开发",
+          "version": "1.0.0",
+          "description": "从驱动开发到 QGC 显示的完整传感器开发链路",
+          "category": "场景技能",
+          "tags": ["传感器", "驱动", "uORB", "MAVLink", "QGC"],
+          "dependencies": ["px4-sensor-driver", "px4-mavlink-custom", "qgc-display"],
+          "command": "/px4-e2e-sensor <传感器名> <总线类型>",
+          "examples": [
+            "/px4-e2e-sensor ICM42688 SPI",
+            "/px4-e2e-sensor MS5611 I2C",
+            "/px4-e2e-sensor SF45 UART"
+          ],
+          "outputFiles": [
+            "驱动代码（.hpp/.cpp）",
+            "uORB 消息定义（.msg）",
+            "MAVLink 流配置（.hpp）",
+            "参数定义（module.yaml）",
+            "CMakeLists.txt",
+            "单元测试（.cpp）"
+          ]
+        },
+        {
+          "id": "px4-e2e-avoidance",
+          "name": "避障全链路开发",
+          "version": "1.1.0",
+          "description": "从传感器到避障算法的完整避障系统开发",
+          "category": "场景技能",
+          "tags": ["避障", "传感器", "算法", "仿真", "安全"],
+          "dependencies": ["px4-sensor-driver", "px4-module", "px4-failsafe-config", "gazebo-sensor", "airsim-sensor"],
+          "command": "/px4-e2e-avoidance <传感器> <总线> <扫描类型> <仿真器> <算法>",
+          "examples": [
+            "/px4-e2e-avoidance 毫米波雷达 DroneCAN 单点测距 AirSim ROS2方案",
+            "/px4-e2e-avoidance SF45 UART 360°扫描 Gazebo internal"
+          ]
+        },
+        {
+          "id": "px4-e2e-control",
+          "name": "控制律全链路开发",
+          "version": "1.0.0",
+          "description": "从控制律设计到仿真验证的完整控制开发",
+          "category": "场景技能",
+          "tags": ["控制律", "PID", "MPC", "仿真", "ROS2"],
+          "dependencies": ["px4-control-law", "px4-param-tune", "px4-sim-start", "px4-ros2-bridge"],
+          "command": "/px4-e2e-control <控制律类型>"
+        },
+        {
+          "id": "px4-e2e-swarm",
+          "name": "多机协同全链路开发",
+          "version": "1.0.0",
+          "description": "从多机仿真到协同任务的完整多机开发",
+          "category": "场景技能",
+          "tags": ["多机", "协同", "仿真", "通信", "任务规划"],
+          "dependencies": ["px4-sim-start", "px4-swarm-mission", "px4-ros2-bridge"],
+          "command": "/px4-e2e-swarm <机型> <任务>"
+        }
+      ]
+    },
+    "layer2": {
+      "name": "组件技能",
+      "count": 25,
+      "description": "细粒度的开发工具，可独立使用或组合使用",
+      "groups": {
+        "codegen": {
+          "name": "代码生成器",
+          "count": 9,
+          "skills": [
+            {
+              "id": "px4-imu-gen",
+              "name": "IMU 驱动代码生成器",
+              "version": "1.0.0",
+              "supportedChips": ["MPU6050", "MPU9250", "ICM20689", "ICM42688", "BMI088", "BMI160", "LSM6DSL", "LSM6DSO", "MPU6000"],
+              "command": "/px4-imu-gen <芯片型号> <总线类型>"
+            },
+            {
+              "id": "px4-mag-gen",
+              "name": "磁力计驱动代码生成器",
+              "version": "1.0.0",
+              "supportedChips": ["HMC5883L", "IST8310", "QMC5883L", "LIS3MDL", "BMM150", "AK8963", "AK09916", "RM3100"],
+              "command": "/px4-mag-gen <芯片型号> <总线类型>"
+            },
+            {
+              "id": "px4-rangefinder-gen",
+              "name": "测距仪驱动代码生成器",
+              "version": "1.0.0",
+              "supportedChips": ["VL53L0X", "VL53L1X", "SF45", "TF-Luna", "TF-Mini", "HC-SR04", "MB1242", "PX4FLOW"],
+              "command": "/px4-rangefinder-gen <芯片型号> <总线类型>"
+            },
+            {
+              "id": "px4-gnss-gen",
+              "name": "GNSS 接收机驱动代码生成器",
+              "version": "1.0.0",
+              "supportedChips": ["u-blox NEO-M8N", "u-blox M9N", "u-blox ZED-F9P", "u-blox F9R", "Septentrio mosaic-X5", "Novatel PwrPak7", "Emlid Reach M+", "Swift Duro", "Garmin GNSS 18x", "SiRF Atlas"],
+              "features": ["RTK 高精度定位", "多频 GNSS"],
+              "command": "/px4-gnss-gen <芯片型号> <总线类型>"
+            },
+            {
+              "id": "px4-mmwave-radar-gen",
+              "name": "毫米波雷达驱动代码生成器",
+              "version": "1.0.0",
+              "supportedChips": ["TI IWR1443", "TI IWR1642", "TI IWR1843", "TI AWR1443", "TI AWR1642", "TI AWR1843", "Bosch ARS430", "Bosch ARS441", "Bosch MRR4", "Delphi ESR", "Continental ARS", "Continental MRR"],
+              "command": "/px4-mmwave-radar-gen <芯片型号> <总线类型>"
+            },
+            {
+              "id": "px4-sensor-codegen",
+              "name": "通用传感器代码生成器",
+              "version": "1.0.0",
+              "supportedTypes": ["IMU", "磁力计", "气压计", "测距仪", "光流", "空速计", "GPS", "360° 测距", "自定义"],
+              "command": "/px4-sensor-codegen <传感器类型> <自定义参数>"
+            },
+            {
+              "id": "px4-uorb-msg",
+              "name": "uORB 消息代码生成器",
+              "version": "1.0.0",
+              "description": "一键生成自定义 uORB 消息定义、发布器、订阅器、单元测试",
+              "command": "/px4-uorb-msg <消息名> <字段列表>"
+            },
+            {
+              "id": "px4-param-define",
+              "name": "参数定义代码生成器",
+              "version": "1.0.0",
+              "description": "一键生成参数定义、DEFINE_PARAMETERS 代码、QGC 配置",
+              "command": "/px4-param-define <参数列表>"
+            },
+            {
+              "id": "px4-crid-backport",
+              "name": "C-RID 驱动迁移生成器",
+              "version": "1.0.0",
+              "description": "从 PX4 main 分支获取 C-RID 驱动代码，迁移到 1.15.0 版本",
+              "command": "/px4-crid-backport"
+            }
+          ]
+        },
+        "firmware": {
+          "name": "PX4 固件开发",
+          "count": 12,
+          "skills": [
+            {"id": "px4-sensor-driver", "name": "传感器驱动开发", "version": "1.1.0"},
+            {"id": "px4-workqueue", "name": "WorkQueue 驱动/任务", "version": "1.0.0"},
+            {"id": "px4-module", "name": "PX4 业务模块", "version": "1.0.0"},
+            {"id": "px4-mavlink-custom", "name": "自定义 MAVLink 消息", "version": "1.0.0"},
+            {"id": "px4-uavcan-custom", "name": "自定义 DroneCAN 消息", "version": "1.0.0"},
+            {"id": "px4-control-law", "name": "自定义飞行控制律", "version": "1.0.0"},
+            {"id": "px4-param-tune", "name": "参数调优", "version": "1.0.0"},
+            {"id": "px4-mixer-actuator", "name": "执行器混控配置", "version": "1.0.0"},
+            {"id": "px4-failsafe-config", "name": "故障保护配置", "version": "1.0.0"},
+            {"id": "px4-board-bringup", "name": "飞控硬件板级支持", "version": "1.0.0"},
+            {"id": "px4-log-analyze", "name": "飞行日志分析", "version": "1.0.0"},
+            {"id": "px4-diagnose", "name": "日志诊断 + 调参建议", "version": "1.0.0"}
+          ]
+        },
+        "simulation": {
+          "name": "仿真与集成",
+          "count": 4,
+          "skills": [
+            {"id": "px4-sim-start", "name": "SITL 仿真启动", "version": "1.0.0"},
+            {"id": "px4-hil-setup", "name": "硬件在环仿真配置", "version": "1.0.0"},
+            {"id": "px4-offboard", "name": "Offboard 外部控制", "version": "1.0.0"},
+            {"id": "px4-ros2-bridge", "name": "ROS2 与 PX4 桥接", "version": "1.0.0"}
+          ]
+        },
+        "groundstation": {
+          "name": "地面站",
+          "count": 1,
+          "skills": [
+            {"id": "qgc-display", "name": "QGC 自定义数据图表", "version": "1.0.0"}
+          ]
+        }
+      }
+    },
+    "layer1": {
+      "name": "基础设施",
+      "count": 5,
+      "description": "通用开发工具，支持所有 Skill",
+      "skills": [
+        {"id": "commit", "name": "生成规范 git 提交信息", "version": "1.0.0"},
+        {"id": "review", "name": "代码安全审查", "version": "1.0.0"},
+        {"id": "handoff", "name": "生成会话交接文档", "version": "1.0.0"},
+        {"id": "simplify", "name": "代码冗余审查", "version": "1.0.0"},
+        {"id": "clean-contract", "name": "清理残留契约文件", "version": "1.0.0"}
+      ]
+    },
+    "layer0_5": {
+      "name": "环境安装",
+      "count": 7,
+      "description": "一键安装 PX4 开发环境",
+      "skills": [
+        {"id": "setup-all", "name": "完整开发环境一键安装", "version": "1.1.0"},
+        {"id": "setup-wsl2", "name": "WSL2 + Ubuntu 22.04", "version": "1.0.0"},
+        {"id": "setup-px4", "name": "PX4 工具链 + SITL 编译", "version": "1.0.0"},
+        {"id": "setup-gazebo", "name": "Gazebo Classic 11", "version": "1.0.0"},
+        {"id": "setup-qgc", "name": "QGroundControl + 网络配置", "version": "1.0.0"},
+        {"id": "setup-airsim", "name": "AirSim settings.json 配置", "version": "1.0.0"},
+        {"id": "setup-ros2", "name": "ROS2 Humble + uXRCE-DDS", "version": "1.0.0"}
+      ]
+    }
+  },
+  "platforms": {
+    "claude": {
+      "name": "Claude Code",
+      "path": "~/.claude/skills/",
+      "type": "native",
+      "recommended": true
+    },
+    "cursor": {
+      "name": "Cursor",
+      "path": "~/.cursor/skills/",
+      "type": "native"
+    },
+    "trae": {
+      "name": "TRAE",
+      "path": "~/.trae/skills/",
+      "type": "native"
+    },
+    "copilot": {
+      "name": "GitHub Copilot",
+      "path": "~/.copilot/skills/",
+      "type": "native"
+    },
+    "antigravity": {
+      "name": "Google Antigravity",
+      "path": "~/.gemini/antigravity/skills/",
+      "type": "native"
+    },
+    "opencode": {
+      "name": "OpenCode",
+      "path": "~/.config/opencode/skill/",
+      "type": "native"
+    },
+    "windsurf": {
+      "name": "Windsurf",
+      "path": "~/.codeium/windsurf/skills/",
+      "type": "symlink",
+      "target": "~/.claude/skills/"
+    },
+    "gemini": {
+      "name": "Gemini CLI",
+      "path": "~/.gemini/skills/",
+      "type": "symlink",
+      "target": "~/.claude/skills/"
+    },
+    "codex": {
+      "name": "OpenAI Codex",
+      "path": "~/.codex/skills/",
+      "type": "symlink",
+      "target": "~/.claude/skills/"
+    }
+  },
+  "tags": {
+    "传感器": ["px4-e2e-sensor", "px4-sensor-driver", "px4-imu-gen", "px4-mag-gen", "px4-rangefinder-gen", "px4-gnss-gen", "px4-mmwave-radar-gen"],
+    "驱动": ["px4-sensor-driver", "px4-workqueue", "px4-imu-gen", "px4-mag-gen", "px4-rangefinder-gen", "px4-gnss-gen", "px4-mmwave-radar-gen"],
+    "仿真": ["px4-sim-start", "px4-hil-setup", "gazebo-sensor", "airsim-sensor"],
+    "避障": ["px4-e2e-avoidance", "px4-failsafe-config"],
+    "控制": ["px4-e2e-control", "px4-control-law", "px4-param-tune"],
+    "多机": ["px4-e2e-swarm", "px4-swarm-mission"],
+    "ROS2": ["px4-ros2-bridge", "px4-offboard"],
+    "QGC": ["qgc-display", "px4-mavlink-custom"],
+    "代码生成": ["px4-imu-gen", "px4-mag-gen", "px4-rangefinder-gen", "px4-gnss-gen", "px4-mmwave-radar-gen", "px4-sensor-codegen", "px4-uorb-msg", "px4-param-define", "px4-crid-backport"]
+  }
+}

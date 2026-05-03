@@ -1,0 +1,252 @@
+name: Validate Skills
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '.claude/skills/**'
+      - 'version-manager.sh'
+      - 'tests/skill-validator.sh'
+      - '.github/workflows/validate-skills.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '.claude/skills/**'
+      - 'version-manager.sh'
+      - 'tests/skill-validator.sh'
+
+jobs:
+  validate-skills:
+    runs-on: ubuntu-latest
+    name: Validate Skill Format and Standards
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash
+
+      - name: Make scripts executable
+        run: |
+          chmod +x version-manager.sh
+          chmod +x tests/skill-validator.sh
+
+      - name: Run Skill validation
+        run: |
+          ./tests/skill-validator.sh
+
+      - name: Generate version manifest
+        run: |
+          ./version-manager.sh manifest
+
+      - name: Generate CHANGELOG
+        run: |
+          ./version-manager.sh changelog
+
+      - name: Check version consistency
+        run: |
+          ./version-manager.sh check
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-report
+          path: tests/validation-report.txt
+
+      - name: Upload version manifest
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: version-manifest
+          path: version-manifest.json
+
+      - name: Upload CHANGELOG
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: changelog
+          path: CHANGELOG.md
+
+      - name: Comment PR with validation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('tests/validation-report.txt', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Skill Validation Report\n\n\`\`\`\n${report}\n\`\`\``
+            });
+
+  check-installation-scripts:
+    runs-on: ubuntu-latest
+    name: Check Installation Scripts
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate install.sh syntax
+        run: |
+          bash -n install.sh
+
+      - name: Check install.sh for common issues
+        run: |
+          # Check for hardcoded paths
+          if grep -E "^/home/|^/root/" install.sh; then
+            echo "❌ Found hardcoded absolute paths in install.sh"
+            exit 1
+          fi
+          echo "✓ install.sh syntax check passed"
+
+  check-documentation:
+    runs-on: ubuntu-latest
+    name: Check Documentation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Markdown syntax
+        run: |
+          # Check for common Markdown issues
+          for file in README.md docs/*.md; do
+            if [ -f "$file" ]; then
+              # Check for unclosed code blocks
+              open_blocks=$(grep -c '```' "$file" || true)
+              if [ $((open_blocks % 2)) -ne 0 ]; then
+                echo "❌ Unclosed code blocks in $file"
+                exit 1
+              fi
+            fi
+          done
+          echo "✓ Markdown syntax check passed"
+
+      - name: Check for broken links in documentation
+        run: |
+          # Check for common broken link patterns
+          for file in README.md docs/*.md; do
+            if [ -f "$file" ]; then
+              # Check for links to non-existent files
+              if grep -o '\[.*\](.*\.md)' "$file" | grep -o '(.*\.md)' | sed 's/[()]//g' | while read link; do
+                if [ ! -f "$link" ]; then
+                  echo "⚠ Potential broken link: $link in $file"
+                fi
+              done
+            fi
+          done
+          echo "✓ Documentation link check completed"
+
+  test-installation:
+    runs-on: ubuntu-latest
+    name: Test Installation Script
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create test environment
+        run: |
+          mkdir -p ~/.claude/skills
+          mkdir -p ~/.cursor/skills
+          mkdir -p ~/.trae/skills
+
+      - name: Test install.sh with --help
+        run: |
+          chmod +x install.sh
+          ./install.sh --help || true
+
+      - name: Verify Skills directory structure
+        run: |
+          # Check that all required Skill directories exist
+          required_skills=(
+            "px4-e2e-sensor"
+            "px4-e2e-avoidance"
+            "px4-e2e-control"
+            "px4-e2e-swarm"
+            "px4-imu-gen"
+            "px4-mag-gen"
+            "px4-rangefinder-gen"
+            "px4-gnss-gen"
+            "px4-mmwave-radar-gen"
+            "px4-sensor-codegen"
+            "px4-uorb-msg"
+            "px4-param-define"
+            "px4-spi-arbiter"
+            "commit"
+            "review"
+            "handoff"
+            "simplify"
+            "clean-contract"
+            "setup-all"
+            "setup-wsl2"
+            "setup-px4"
+            "setup-gazebo"
+            "setup-qgc"
+            "setup-airsim"
+            "setup-ros2"
+          )
+
+          for skill in "${required_skills[@]}"; do
+            if [ ! -d ".claude/skills/$skill" ]; then
+              echo "❌ Missing Skill directory: $skill"
+              exit 1
+            fi
+            if [ ! -f ".claude/skills/$skill/SKILL.md" ]; then
+              echo "❌ Missing SKILL.md in $skill"
+              exit 1
+            fi
+          done
+
+          echo "✓ All required Skill directories exist"
+
+  generate-reports:
+    runs-on: ubuntu-latest
+    name: Generate Version Reports
+    needs: validate-skills
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: |
+          chmod +x version-manager.sh
+
+      - name: Generate version report
+        run: |
+          ./version-manager.sh report
+
+      - name: Generate version manifest
+        run: |
+          ./version-manager.sh manifest
+
+      - name: Generate CHANGELOG
+        run: |
+          ./version-manager.sh changelog
+
+      - name: Create summary
+        run: |
+          echo "## Version Management Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ./version-manager.sh report >> $GITHUB_STEP_SUMMARY || true
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Files Generated" >> $GITHUB_STEP_SUMMARY
+          echo "- version-manifest.json" >> $GITHUB_STEP_SUMMARY
+          echo "- CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: version-reports
+          path: |
+            version-manifest.json
+            CHANGELOG.md

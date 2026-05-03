@@ -1,29 +1,132 @@
-# px4agent
+<div align="center">
 
-> 基于 PX4 的无人系统智能开发平台 —— 以先进 AI 技术加速无人系统进化
+![PX4 Skills](https://img.shields.io/badge/PX4-Skills-blue)
+![Platforms](https://img.shields.io/badge/platforms-9-green)
+![License](https://img.shields.io/badge/license-MIT-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-purple)
+![Skills](https://img.shields.io/badge/skills-48-brightgreen)
+
+**PX4 无人系统 AI 开发平台** - 让 AI 编程工具理解并使用 PX4 全链路开发
+
+支持 **9 种主流 AI 工具** 的一键安装
+
+[快速开始](#-快速开始) • [Skill 列表](#-skill-列表) • [平台支持](#-支持的平台) • [安装指南](#-安装指南)
+
+</div>
 
 ---
 
-## 项目定位
+## 📖 项目简介
 
-无人系统的开发门槛长期偏高：飞控固件、通信协议、仿真环境、地面站、数据分析……每个环节都需要专深的领域知识，团队协作成本极大。
+**PX4Agent** 是一套专为 PX4 无人系统开发的 AI 技能包集合，让主流 AI 编程工具能够**自动理解并使用** PX4 的驱动框架、仿真环境、参数系统和最佳实践。
 
-**px4agent** 的目标是打破这一壁垒。
+### ✨ 核心特性
 
-本项目将 PX4 完整生态集成为统一工作空间，并在其上构建一套 **AI 开发代理层**（Claude Code Skills）。开发者只需用自然语言描述需求，AI 即可完成从需求分析、代码生成、规范审查到验证的全链路工作。
+- 🎯 **零学习成本** - AI 自动理解 PX4 架构，无需手动查文档
+- 🛠️ **最佳实践内置** - 基于 PX4 官方规范的开发模板和编码规范
+- 🔄 **完整工作流** - 从驱动开发到仿真验证的全流程支持
+- 📚 **持续更新** - 跟随 PX4 版本更新，保持最新
+- 🔌 **9 平台支持** - 支持所有主流 AI 编程工具，一键安装
+
+### 🎯 包含 Skill
+
+本项目包含 **48 个 Skill**，分为 4 层架构，涵盖 PX4 开发的各个场景：
+
+| 层级 | 数量 | 类型 | 示例 |
+|------|------|------|------|
+| **Layer 3** | 4 个 | 场景技能 | px4-e2e-sensor、px4-e2e-avoidance、px4-e2e-control、px4-e2e-swarm |
+| **Layer 2** | 25 个 | 组件技能 | px4-imu-gen、px4-sensor-driver、px4-param-define、px4-uorb-msg 等 |
+| **Layer 1** | 5 个 | 基础设施 | commit、review、handoff、simplify、clean-contract |
+| **Layer 0.5** | 7 个 | 环境安装 | setup-all、setup-px4、setup-gazebo、setup-ros2 等 |
+| **Layer 0** | 2 个 | 核心规范 | CLAUDE.md、context 领域知识 |
 
 ---
 
-## 核心理念
+## 📱 支持的平台
+
+本项目支持 **9 种主流 AI 编程工具**，涵盖所有常用平台：
+
+| 平台 | 兼容性 | 安装方式 | 目录位置 | 推荐度 |
+|------|--------|----------|----------|--------|
+| **Claude Code** | ✓ 原生 | 脚本/手动 | `~/.claude/skills/` | ⭐⭐⭐⭐⭐ |
+| **Cursor** | ✓ 原生兼容 | 脚本/手动 | `~/.cursor/skills/` | ⭐⭐⭐⭐⭐ |
+| **TRAE** | ✓ 原生兼容 | 脚本/手动 | `~/.trae/skills/` | ⭐⭐⭐⭐⭐ |
+| **GitHub Copilot** | ✓ 原生兼容 | 脚本/手动 | `~/.copilot/skills/` | ⭐⭐⭐⭐ |
+| **Google Antigravity** | ✓ 原生兼容 | 脚本/手动 | `~/.gemini/antigravity/skills/` | ⭐⭐⭐⭐ |
+| **OpenCode** | ✓ 原生兼容 | 脚本/手动 | `~/.config/opencode/skill/` | ⭐⭐⭐⭐ |
+| **Windsurf** | ⚡ 软链接 | 脚本自动 | `~/.codeium/windsurf/skills/` | ⭐⭐⭐⭐ |
+| **Gemini CLI** | ⚡ 软链接 | 脚本自动 | `~/.gemini/skills/` | ⭐⭐⭐ |
+| **OpenAI Codex** | ⚡ 软链接 | 脚本自动 | `~/.codex/skills/` | ⭐⭐⭐ |
+
+**符号说明:**
+- **✓ 原生** - 工具自动扫描或使用相同的目录结构，无需额外配置
+- **⚡ 软链接** - 通过链接到 Claude 目录实现自动同步，更新一处全部同步
+
+---
+
+## 🚀 快速开始
+
+### 💡 推荐策略："一次安装，到处运行"
+
+**默认规则：全局安装到 Claude Code**
+
+1. **为什么选择 Claude？**
+   - ✅ Anthropic 官方工具，最标准的实现
+   - ✅ 原生支持 skills，兼容性最好
+   - ✅ 其他平台可以直接兼容或软链接
+
+2. **"一次安装，到处运行"的优势：**
+   - 🎯 **一次安装** - 只需在 `~/.claude/skills/` 安装一次
+   - 🔄 **自动同步** - 原生兼容平台自动识别，软链接平台自动同步
+   - 💾 **节省空间** - 避免多次复制，统一维护
+   - ⚡ **更新简单** - 更新 Claude 目录，所有平台立即生效
+
+### 📋 安装指南
+
+#### macOS / Linux
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/yourusername/px4agent.git
+cd px4agent
+
+# 2. 一键全局安装（推荐）
+chmod +x install.sh
+./install.sh --all --global
+
+# 或仅安装到指定平台
+./install.sh --claude --cursor
+./install.sh --project              # 项目级安装
+```
+
+#### Windows PowerShell
+
+```powershell
+# 1. 克隆仓库
+git clone https://github.com/yourusername/px4agent.git
+cd px4agent
+
+# 2. 一键全局安装（需要管理员权限）
+.\install.ps1 -All -Global
+
+# 或仅安装到指定平台
+.\install.ps1 -Claude -Cursor
+.\install.ps1 -Project              # 项目级安装
+```
+
+### ✅ 验证安装
+
+在任一已安装的平台中测试：
 
 ```
-自然语言需求  ──►  AI 代理理解与规划  ──►  符合 PX4 规范的代码  ──►  仿真验证
+你: 帮我启动 PX4 SITL 仿真
+AI: [自动使用 px4-sim-start Skill，启动 Gazebo 仿真环境]
+
+你: 帮我生成一个 IMU 驱动
+AI: [自动使用 px4-imu-gen Skill，一键生成完整驱动代码]
 ```
 
-- **人机协作**：AI 负责重复性的工程实现，工程师专注系统设计与决策
-- **规范内嵌**：PX4 编码规范、安全约束、架构模式直接编码进每个 Skill
-- **端到端闭环**：从驱动、通信协议到地面站 UI、数据分析，整条链路在同一平台内完成
-- **接口契约**：跨组件开发时自动生成接口契约文件，保证 uORB / MAVLink / 仿真器参数全链路一致
+📚 **需要更多帮助？** 查看 [详细安装指南](./docs/INSTALLATION.md) 或 [快速启动指南](./docs/QUICK_START.md)
 
 ---
 
